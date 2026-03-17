@@ -14,15 +14,15 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
-echo "==> 停止并删除旧容器（如果存在）"
-docker stop $CONTAINER_NAME 2>/dev/null || true
-docker rm $CONTAINER_NAME 2>/dev/null || true
-
 echo "==> 构建 Docker 镜像"
 docker build --platform linux/amd64 -t $IMAGE_NAME .
 
 echo "==> 创建数据目录"
 mkdir -p $DATA_DIR $LOG_DIR
+
+echo "==> 停止并删除旧容器（如果存在）"
+docker stop $CONTAINER_NAME 2>/dev/null || true
+docker rm $CONTAINER_NAME 2>/dev/null || true
 
 echo "==> 启动容器"
 docker run --name $CONTAINER_NAME -d --restart always \
