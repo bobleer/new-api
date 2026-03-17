@@ -34,35 +34,7 @@ docker run --name $CONTAINER_NAME -d --restart always \
   -v $(pwd)/$LOG_DIR:/app/logs \
   $IMAGE_NAME --log-dir /app/logs
 
-echo "==> 配置开机自启（systemd）"
-SERVICE_FILE="/etc/systemd/system/new-api-docker.service"
-
-if [ ! -f "$SERVICE_FILE" ]; then
-    echo "创建 systemd 服务文件..."
-    sudo tee $SERVICE_FILE > /dev/null <<EOF
-[Unit]
-Description=New API Docker Container
-Requires=docker.service
-After=docker.service
-
-[Service]
-Type=oneshot
-RemainAfterExit=yes
-WorkingDirectory=$(pwd)
-ExecStart=/usr/bin/docker start $CONTAINER_NAME
-ExecStop=/usr/bin/docker stop $CONTAINER_NAME
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-    sudo systemctl daemon-reload
-    sudo systemctl enable new-api-docker.service
-    echo "✓ 开机自启已配置"
-else
-    echo "✓ systemd 服务已存在"
-fi
+echo "✓ 容器已配置 --restart always，Docker 启动时会自动恢复容器"
 
 echo ""
 echo "==> 部署完成！"
