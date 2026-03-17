@@ -313,6 +313,14 @@ func TokenAuth() func(c *gin.Context) {
 			return
 		}
 
+		if token.VerificationCode != "" {
+			headerCode := c.GetHeader("X-Verification-Code")
+			if headerCode != token.VerificationCode {
+				abortWithOpenAiMessage(c, http.StatusForbidden, "无权访问该资源")
+				return
+			}
+		}
+
 		allowIps := token.GetIpLimits()
 		if len(allowIps) > 0 {
 			clientIp := c.ClientIP()

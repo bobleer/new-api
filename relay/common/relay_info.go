@@ -168,6 +168,10 @@ type RelayInfo struct {
 	*ResponsesUsageInfo
 	*ChannelMeta
 	*TaskRelayInfo
+
+	// AssistantReply holds the complete assistant message content for conversation logging.
+	// Set by response handlers (OaiStreamHandler/OpenaiHandler); read by SaveConversationLog.
+	AssistantReply string
 }
 
 func (info *RelayInfo) InitChannelMeta(c *gin.Context) {

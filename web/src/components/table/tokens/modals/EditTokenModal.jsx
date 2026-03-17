@@ -74,6 +74,7 @@ const EditTokenModal = (props) => {
     allow_ips: '',
     group: '',
     cross_group_retry: false,
+    verification_code: '',
     tokenCount: 1,
   });
 
@@ -569,6 +570,16 @@ const EditTokenModal = (props) => {
                       extraText={t(
                         '请勿过度信任此功能，IP可能被伪造，请配合nginx和cdn等网关使用',
                       )}
+                      showClear
+                      style={{ width: '100%' }}
+                    />
+                  </Col>
+                  <Col span={24}>
+                    <Form.Input
+                      field='verification_code'
+                      label={t('特殊校验码')}
+                      placeholder={t('请求头 X-Verification-Code 的值，留空不校验')}
+                      extraText={t('设置后，每次请求必须在 Header 中携带 X-Verification-Code 且值匹配，否则拒绝访问')}
                       showClear
                       style={{ width: '100%' }}
                     />

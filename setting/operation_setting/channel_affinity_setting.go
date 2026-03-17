@@ -79,6 +79,18 @@ var channelAffinitySetting = ChannelAffinitySetting{
 	DefaultTTLSeconds: 3600,
 	Rules: []ChannelAffinityRule{
 		{
+			Name:       "token affinity",
+			ModelRegex: []string{".*"},
+			KeySources: []ChannelAffinityKeySource{
+				{Type: "context_int", Key: "token_id"},
+			},
+			ValueRegex:         "",
+			TTLSeconds:         0,
+			SkipRetryOnFailure: false,
+			IncludeUsingGroup:  true,
+			IncludeRuleName:    true,
+		},
+		{
 			Name:       "codex cli trace",
 			ModelRegex: []string{"^gpt-.*$"},
 			PathRegex:  []string{"/v1/responses"},

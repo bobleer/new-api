@@ -272,19 +272,10 @@ const renderQuotaUsage = (text, record, t) => {
   const remain = parseInt(record.remain_quota) || 0;
   const total = used + remain;
   if (record.unlimited_quota) {
-    const popoverContent = (
-      <div className='text-xs p-2'>
-        <Paragraph copyable={{ content: renderQuota(used) }}>
-          {t('已用额度')}: {renderQuota(used)}
-        </Paragraph>
-      </div>
-    );
     return (
-      <Popover content={popoverContent} position='top'>
-        <Tag color='white' shape='circle'>
-          {t('无限额度')}
-        </Tag>
-      </Popover>
+      <Tag color='white' shape='circle'>
+        <span className='text-xs'>{t('已用')}: {renderQuota(used)}</span>
+      </Tag>
     );
   }
   const percent = total > 0 ? (remain / total) * 100 : 0;
@@ -465,6 +456,8 @@ export const getTokensColumns = ({
       title: t('剩余额度/总额度'),
       key: 'quota_usage',
       render: (text, record) => renderQuotaUsage(text, record, t),
+      sorter: true,
+      dataIndex: 'used_quota',
     },
     {
       title: t('分组'),

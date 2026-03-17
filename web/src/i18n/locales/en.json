@@ -3309,6 +3309,9 @@
     "输入价格：{{symbol}}{{price}} / 1M tokens": "Input Price: {{symbol}}{{price}} / 1M tokens",
     "输出价格 {{symbol}}{{price}} / 1M tokens": "Output Price {{symbol}}{{price}} / 1M tokens",
     "输出价格：{{symbol}}{{price}} / 1M tokens": "Output Price: {{symbol}}{{price}} / 1M tokens",
-    "输出价格：{{symbol}}{{total}} / 1M tokens": "Output Price: {{symbol}}{{total}} / 1M tokens"
+    "输出价格：{{symbol}}{{total}} / 1M tokens": "Output Price: {{symbol}}{{total}} / 1M tokens",
+    "特殊校验码": "Verification Code",
+    "请求头 X-Verification-Code 的值，留空不校验": "Value of X-Verification-Code header, leave empty to skip verification",
+    "设置后，每次请求必须在 Header 中携带 X-Verification-Code 且值匹配，否则拒绝访问": "When set, every request must include X-Verification-Code header with matching value, otherwise access is denied"
   }
 }

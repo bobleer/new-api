@@ -181,6 +181,9 @@ func OaiStreamHandler(c *gin.Context, info *relaycommon.RelayInfo, resp *http.Re
 		logger.LogError(c, "error processing tokens: "+err.Error())
 	}
 
+	// 捕获 assistant 回复用于 conversation log
+	info.AssistantReply = responseTextBuilder.String()
+
 	if !containStreamUsage {
 		usage = service.ResponseText2Usage(c, responseTextBuilder.String(), info.UpstreamModelName, info.GetEstimatePromptTokens())
 		usage.CompletionTokens += toolCount * 7
@@ -235,6 +238,13 @@ func OpenaiHandler(c *gin.Context, info *relaycommon.RelayInfo, resp *http.Respo
 			break
 		}
 	}
+
+	// 捕获 assistant 回复用于 conversation log
+	var replyBuilder strings.Builder
+	for _, choice := range simpleResponse.Choices {
+		replyBuilder.WriteString(choice.Message.StringContent())
+	}
+	info.AssistantReply = replyBuilder.String()
 
 	forceFormat := false
 	if info.ChannelSetting.ForceFormat {

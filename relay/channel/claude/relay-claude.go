@@ -790,6 +790,7 @@ func ClaudeStreamHandler(c *gin.Context, resp *http.Response, info *relaycommon.
 	}
 
 	HandleStreamFinalResponse(c, info, claudeInfo)
+	info.AssistantReply = claudeInfo.ResponseText.String()
 	return claudeInfo.Usage, nil
 }
 
@@ -857,6 +858,7 @@ func ClaudeHandler(c *gin.Context, resp *http.Response, info *relaycommon.RelayI
 	if handleErr != nil {
 		return nil, handleErr
 	}
+	info.AssistantReply = claudeInfo.ResponseText.String()
 	return claudeInfo.Usage, nil
 }
 

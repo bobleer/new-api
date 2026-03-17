@@ -1344,6 +1344,7 @@ func geminiStreamHandler(c *gin.Context, info *relaycommon.RelayInfo, resp *http
 		}
 	}
 
+	info.AssistantReply = responseText.String()
 	return usage, nil
 }
 
@@ -1510,6 +1511,13 @@ func GeminiChatHandler(c *gin.Context, info *relaycommon.RelayInfo, resp *http.R
 	}
 
 	service.IOCopyBytesGracefully(c, resp, responseBody)
+
+	// 捕获 assistant 回复用于 conversation log
+	var replyBuilder strings.Builder
+	for _, choice := range fullTextResponse.Choices {
+		replyBuilder.WriteString(choice.Message.StringContent())
+	}
+	info.AssistantReply = replyBuilder.String()
 
 	return &usage, nil
 }

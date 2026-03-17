@@ -1,0 +1,19 @@
+version: '3.4'
+
+services:
+  new-api:
+    image: new-api-custom
+    container_name: new-api
+    restart: always
+    command: --log-dir /app/logs
+    ports:
+      - "49831:3000"
+    volumes:
+      - ./data:/data
+      - ./logs:/app/logs
+    environment:
+      - TZ=Asia/Shanghai
+      - ERROR_LOG_ENABLED=true
+      - BATCH_UPDATE_ENABLED=true
+#      - SESSION_SECRET=random_string  # 多机部署时设置
+#      - STREAMING_TIMEOUT=300

@@ -95,6 +95,7 @@ func TextHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *types
 		} else {
 			postConsumeQuota(c, info, usage)
 		}
+		service.SaveConversationLog(info, usage)
 		return nil
 	}
 
@@ -218,6 +219,7 @@ func TextHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *types
 	} else {
 		postConsumeQuota(c, info, usage.(*dto.Usage))
 	}
+	service.SaveConversationLog(info, usage.(*dto.Usage))
 	return nil
 }
 
