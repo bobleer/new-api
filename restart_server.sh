@@ -15,5 +15,4 @@ docker run --name new-api-lwb -d --restart always \
   -e ERROR_LOG_ENABLED=true \
   -e BATCH_UPDATE_ENABLED=true \
   -v ./data:/data \
-  -v ./logs:/app/logs \
-  new-api-lwb --log-dir /app/logs
+  new-api-lwb
