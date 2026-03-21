@@ -25,19 +25,30 @@ type ConversationLog struct {
 	CompletionTokens int           `json:"completion_tokens"`
 }
 
-func SaveConversationLog(relayInfo *relaycommon.RelayInfo, usage *dto.Usage) {
+// SaveConversationLog writes one JSON file per request under CONVERSATION_LOG_DIR (or default ./logs/conversations/).
+// Callers must only invoke this after a successful relay (HTTP OK / stream completed without handler error, DoResponse succeeded, quota posted)—failed requests must not call it.
+// messageSource, when non-nil, is used to build OpenAI-shaped messages; otherwise relayInfo.Request is used.
+// For OpenAI chat completions, messageSource should be the effective *dto.GeneralOpenAIRequest (after channel conversion / system prompt).
+func SaveConversationLog(relayInfo *relaycommon.RelayInfo, usage *dto.Usage, messageSource ...dto.Request) {
 	if !model_setting.GetGlobalSettings().ConversationLogEnabled {
-		return
-	}
-	if relayInfo.RelayMode != relayconstant.RelayModeChatCompletions {
 		return
 	}
 	if relayInfo.AssistantReply == "" {
 		return
 	}
 
-	textReq, ok := relayInfo.Request.(*dto.GeneralOpenAIRequest)
-	if !ok || len(textReq.Messages) == 0 {
+	var src dto.Request
+	if len(messageSource) > 0 && messageSource[0] != nil {
+		src = messageSource[0]
+	} else {
+		src = relayInfo.Request
+	}
+	if src == nil {
+		return
+	}
+
+	messages, ok := conversationLogOpenAIMessages(relayInfo, src)
+	if !ok || len(messages) == 0 {
 		return
 	}
 
@@ -58,7 +69,7 @@ func SaveConversationLog(relayInfo *relaycommon.RelayInfo, usage *dto.Usage) {
 		Timestamp:        time.Now().Unix(),
 		UserId:           relayInfo.UserId,
 		Model:            relayInfo.OriginModelName,
-		Messages:         textReq.Messages,
+		Messages:         messages,
 		AssistantReply:   relayInfo.AssistantReply,
 		PromptTokens:     promptTokens,
 		CompletionTokens: completionTokens,
@@ -67,6 +78,33 @@ func SaveConversationLog(relayInfo *relaycommon.RelayInfo, usage *dto.Usage) {
 	gopool.Go(func() {
 		writeConversationLog(logDir, entry)
 	})
+}
+
+func conversationLogOpenAIMessages(relayInfo *relaycommon.RelayInfo, src dto.Request) ([]dto.Message, bool) {
+	switch r := src.(type) {
+	case *dto.GeneralOpenAIRequest:
+		if relayInfo.RelayMode != relayconstant.RelayModeChatCompletions {
+			return nil, false
+		}
+		if len(r.Messages) == 0 {
+			return nil, false
+		}
+		return r.Messages, true
+	case *dto.ClaudeRequest:
+		oai, err := ClaudeToOpenAIRequest(*r, relayInfo)
+		if err != nil || len(oai.Messages) == 0 {
+			return nil, false
+		}
+		return oai.Messages, true
+	case *dto.GeminiChatRequest:
+		oai, err := GeminiToOpenAIRequest(r, relayInfo)
+		if err != nil || len(oai.Messages) == 0 {
+			return nil, false
+		}
+		return oai.Messages, true
+	default:
+		return nil, false
+	}
 }
 
 func writeConversationLog(logDir string, entry ConversationLog) {

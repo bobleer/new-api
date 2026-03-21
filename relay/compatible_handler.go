@@ -76,6 +76,8 @@ func TextHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *types
 	}
 	adaptor.Init(info)
 
+	messageLogSrc := dto.Request(request)
+
 	passThroughGlobal := model_setting.GetGlobalSettings().PassThroughRequestEnabled
 	if info.RelayMode == relayconstant.RelayModeChatCompletions &&
 		!passThroughGlobal &&
@@ -95,7 +97,7 @@ func TextHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *types
 		} else {
 			postConsumeQuota(c, info, usage)
 		}
-		service.SaveConversationLog(info, usage)
+		service.SaveConversationLog(info, usage, request)
 		return nil
 	}
 
@@ -121,11 +123,11 @@ func TextHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *types
 
 		if info.ChannelSetting.SystemPrompt != "" {
 			// 如果有系统提示，则将其添加到请求中
-			request, ok := convertedRequest.(*dto.GeneralOpenAIRequest)
-			if ok {
+			oaiForPrompt, okConv := convertedRequest.(*dto.GeneralOpenAIRequest)
+			if okConv {
 				containSystemPrompt := false
-				for _, message := range request.Messages {
-					if message.Role == request.GetSystemRoleName() {
+				for _, message := range oaiForPrompt.Messages {
+					if message.Role == oaiForPrompt.GetSystemRoleName() {
 						containSystemPrompt = true
 						break
 					}
@@ -133,17 +135,17 @@ func TextHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *types
 				if !containSystemPrompt {
 					// 如果没有系统提示，则添加系统提示
 					systemMessage := dto.Message{
-						Role:    request.GetSystemRoleName(),
+						Role:    oaiForPrompt.GetSystemRoleName(),
 						Content: info.ChannelSetting.SystemPrompt,
 					}
-					request.Messages = append([]dto.Message{systemMessage}, request.Messages...)
+					oaiForPrompt.Messages = append([]dto.Message{systemMessage}, oaiForPrompt.Messages...)
 				} else if info.ChannelSetting.SystemPromptOverride {
 					common.SetContextKey(c, constant.ContextKeySystemPromptOverride, true)
 					// 如果有系统提示，且允许覆盖，则拼接到前面
-					for i, message := range request.Messages {
-						if message.Role == request.GetSystemRoleName() {
+					for i, message := range oaiForPrompt.Messages {
+						if message.Role == oaiForPrompt.GetSystemRoleName() {
 							if message.IsStringContent() {
-								request.Messages[i].SetStringContent(info.ChannelSetting.SystemPrompt + "\n" + message.StringContent())
+								oaiForPrompt.Messages[i].SetStringContent(info.ChannelSetting.SystemPrompt + "\n" + message.StringContent())
 							} else {
 								contents := message.ParseContent()
 								contents = append([]dto.MediaContent{
@@ -152,13 +154,17 @@ func TextHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *types
 										Text: info.ChannelSetting.SystemPrompt,
 									},
 								}, contents...)
-								request.Messages[i].Content = contents
+								oaiForPrompt.Messages[i].Content = contents
 							}
 							break
 						}
 					}
 				}
 			}
+		}
+
+		if oai, okConv := convertedRequest.(*dto.GeneralOpenAIRequest); okConv {
+			messageLogSrc = oai
 		}
 
 		jsonData, err := common.Marshal(convertedRequest)
@@ -219,7 +225,7 @@ func TextHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *types
 	} else {
 		postConsumeQuota(c, info, usage.(*dto.Usage))
 	}
-	service.SaveConversationLog(info, usage.(*dto.Usage))
+	service.SaveConversationLog(info, usage.(*dto.Usage), messageLogSrc)
 	return nil
 }
 

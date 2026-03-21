@@ -195,6 +195,7 @@ func GeminiHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *typ
 	}
 
 	postConsumeQuota(c, info, usage.(*dto.Usage))
+	service.SaveConversationLog(info, usage.(*dto.Usage), request)
 	return nil
 }
 

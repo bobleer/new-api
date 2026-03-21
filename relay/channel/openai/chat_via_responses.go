@@ -71,6 +71,12 @@ func OaiResponsesToChatHandler(c *gin.Context, info *relaycommon.RelayInfo, resp
 		chatResp.Usage = *usage
 	}
 
+	var replyBuilder strings.Builder
+	for _, choice := range chatResp.Choices {
+		replyBuilder.WriteString(choice.Message.StringContent())
+	}
+	info.AssistantReply = replyBuilder.String()
+
 	var responseBody []byte
 	switch info.RelayFormat {
 	case types.RelayFormatClaude:
@@ -535,5 +541,6 @@ func OaiResponsesToChatStreamHandler(c *gin.Context, info *relaycommon.RelayInfo
 	if info.RelayFormat == types.RelayFormatOpenAI {
 		helper.Done(c)
 	}
+	info.AssistantReply = outputText.String()
 	return usage, nil
 }

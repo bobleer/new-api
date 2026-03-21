@@ -123,6 +123,7 @@ func ClaudeHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *typ
 		}
 
 		service.PostClaudeConsumeQuota(c, info, usage)
+		service.SaveConversationLog(info, usage, request)
 		return nil
 	}
 
@@ -191,5 +192,6 @@ func ClaudeHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *typ
 	}
 
 	service.PostClaudeConsumeQuota(c, info, usage.(*dto.Usage))
+	service.SaveConversationLog(info, usage.(*dto.Usage), request)
 	return nil
 }
