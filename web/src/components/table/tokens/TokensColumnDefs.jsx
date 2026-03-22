@@ -265,6 +265,38 @@ const renderAllowIps = (text, t) => {
   return <Space wrap>{ipTags}</Space>;
 };
 
+/**
+ * 与「剩余额度/总额度」列展示一致：先按剩余额度，再按总额度（已用+剩余）；
+ * 不限额度令牌在升序时排在有限额度之后；不限之间按已用量比较。
+ * 供 Semi Table 对当前页 dataSource 做数值排序。
+ */
+export const compareTokensByQuotaUsage = (a, b) => {
+  const aUn = !!a?.unlimited_quota;
+  const bUn = !!b?.unlimited_quota;
+  if (aUn && bUn) {
+    return (Number(a.used_quota) || 0) - (Number(b.used_quota) || 0);
+  }
+  if (aUn) {
+    return 1;
+  }
+  if (bUn) {
+    return -1;
+  }
+  const aUsed = Number(a.used_quota) || 0;
+  const bUsed = Number(b.used_quota) || 0;
+  const aRemain = Number(a.remain_quota) || 0;
+  const bRemain = Number(b.remain_quota) || 0;
+  const aTotal = aUsed + aRemain;
+  const bTotal = bUsed + bRemain;
+  if (aRemain !== bRemain) {
+    return aRemain - bRemain;
+  }
+  if (aTotal !== bTotal) {
+    return aTotal - bTotal;
+  }
+  return (Number(a.id) || 0) - (Number(b.id) || 0);
+};
+
 // Render separate quota usage column
 const renderQuotaUsage = (text, record, t) => {
   const { Paragraph } = Typography;
@@ -456,8 +488,8 @@ export const getTokensColumns = ({
       title: t('剩余额度/总额度'),
       key: 'quota_usage',
       render: (text, record) => renderQuotaUsage(text, record, t),
-      sorter: true,
-      dataIndex: 'used_quota',
+      sorter: compareTokensByQuotaUsage,
+      dataIndex: 'remain_quota',
     },
     {
       title: t('分组'),

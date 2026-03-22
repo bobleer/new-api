@@ -306,21 +306,6 @@ export const useTokensData = (openFluentNotification, openCCSwitchModal) => {
     setSearching(false);
   };
 
-  // Sort tokens function
-  const sortToken = (key) => {
-    if (tokens.length === 0) return;
-    setLoading(true);
-    let sortedTokens = [...tokens];
-    sortedTokens.sort((a, b) => {
-      return ('' + a[key]).localeCompare(b[key]);
-    });
-    if (sortedTokens[0].id === tokens[0].id) {
-      sortedTokens.reverse();
-    }
-    setTokens(sortedTokens);
-    setLoading(false);
-  };
-
   // Page handlers
   const handlePageChange = (page) => {
     if (searchMode) {
@@ -468,7 +453,6 @@ export const useTokensData = (openFluentNotification, openCCSwitchModal) => {
     onOpenLink,
     manageToken,
     searchTokens,
-    sortToken,
     handlePageChange,
     handlePageSizeChange,
     rowSelection,

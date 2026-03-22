@@ -48,7 +48,6 @@ const TokensTable = (tokensData) => {
     setEditingToken,
     setShowEdit,
     refresh,
-    sortToken,
     t,
   } = tokensData;
 
@@ -94,12 +93,6 @@ const TokensTable = (tokensData) => {
       : columns;
   }, [compactMode, columns]);
 
-  const handleChange = (data) => {
-    if (data.sorter && data.sorter.sortOrder) {
-      sortToken('used_quota');
-    }
-  };
-
   return (
     <CardTable
       columns={tableColumns}
@@ -118,7 +111,6 @@ const TokensTable = (tokensData) => {
       loading={loading}
       rowSelection={rowSelection}
       onRow={handleRow}
-      onChange={handleChange}
       empty={
         <Empty
           image={<IllustrationNoResult style={{ width: 150, height: 150 }} />}
