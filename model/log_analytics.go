@@ -14,6 +14,7 @@ import (
 const (
 	LogAnalyticsGroupByChannel = "channel"
 	LogAnalyticsGroupByToken   = "token"
+	maxLogAnalyticsRangeSeconds = 90 * 86400
 )
 
 type LogAnalyticsParams struct {
@@ -106,6 +107,9 @@ func GetLogAnalytics(params LogAnalyticsParams) (*LogAnalyticsResult, error) {
 	}
 	if params.StartTimestamp > params.EndTimestamp {
 		return nil, errors.New("start_timestamp must be before end_timestamp")
+	}
+	if params.EndTimestamp-params.StartTimestamp > maxLogAnalyticsRangeSeconds {
+		return nil, errors.New("time range exceeds 90 days")
 	}
 	switch params.GroupBy {
 	case LogAnalyticsGroupByChannel, LogAnalyticsGroupByToken:

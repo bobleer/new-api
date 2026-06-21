@@ -37,6 +37,12 @@ func DownloadSessionTraceTurn(c *gin.Context) {
 
 	detail, err := model.LoadSessionTraceTurnDetail(traceID, turnIndex)
 	if err != nil {
+		if externalDetail, externalErr := service.GetExternalSessionTraceTurnDetail(traceID, turnIndex); externalErr == nil {
+			detail = externalDetail
+			err = nil
+		}
+	}
+	if err != nil {
 		common.ApiErrorMsg(c, "session trace turn detail not found")
 		return
 	}

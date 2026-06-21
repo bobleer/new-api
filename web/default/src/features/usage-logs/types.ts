@@ -212,6 +212,7 @@ export interface LogOtherData {
   // Error log detail fields (type=5)
   error_detail_id?: string
   has_error_detail?: boolean
+  trace_id?: string
   status_code?: number
   error_type?: string
   error_code?: string

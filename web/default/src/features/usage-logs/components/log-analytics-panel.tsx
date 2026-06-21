@@ -181,14 +181,20 @@ export function LogAnalyticsPanel() {
         model: filter.model || undefined,
         channel: filter.channel || undefined,
       })
+      toast.success(t('Applied error localization filters'))
     },
-    [updateSearch]
+    [t, updateSearch]
   )
 
   const formatFailureRate = (rate: number) => `${rate.toFixed(2)}%`
 
   return (
     <div className='flex h-full min-h-0 flex-col gap-4'>
+      <p className='text-muted-foreground text-sm'>
+        {t(
+          'Analyze call volume, failure hotspots, request paths, and error clusters for the selected time range.'
+        )}
+      </p>
       <div className='flex flex-wrap items-center gap-2'>
         <div className='flex flex-wrap items-center gap-1.5'>
           {LOG_ANALYTICS_TIME_PRESETS.map((preset) => (

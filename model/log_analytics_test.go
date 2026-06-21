@@ -81,6 +81,16 @@ func TestGetLogAnalyticsRequiresTimeRange(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestGetLogAnalyticsRejectsLongRange(t *testing.T) {
+	now := common.GetTimestamp()
+	_, err := GetLogAnalytics(LogAnalyticsParams{
+		StartTimestamp: now - maxLogAnalyticsRangeSeconds - 3600,
+		EndTimestamp:   now,
+		GroupBy:        LogAnalyticsGroupByChannel,
+	})
+	require.Error(t, err)
+}
+
 func TestGetLogAnalyticsInsights(t *testing.T) {
 	now := common.GetTimestamp()
 	username := "analytics-user-insights-test"

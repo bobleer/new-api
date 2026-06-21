@@ -23,10 +23,24 @@ func exportToElasticsearch(event *Event) error {
 	action := fmt.Sprintf(`{"index":{"_index":"%s"}}`, index)
 	body := action + "\n" + string(payload) + "\n"
 	url := trimTrailingSlash(setting.ElasticsearchURL) + "/_bulk"
-	_, _, err = doRequest(http.MethodPost, url, []byte(body), map[string]string{
+	respBody, statusCode, err := doRequest(http.MethodPost, url, []byte(body), map[string]string{
 		"Content-Type": "application/x-ndjson",
 	}, setting, true)
-	return err
+	if err != nil {
+		return err
+	}
+	if statusCode >= http.StatusBadRequest {
+		return fmt.Errorf("elasticsearch bulk export failed with status %d", statusCode)
+	}
+	parsed := gjson.ParseBytes(respBody)
+	if parsed.Get("errors").Bool() {
+		firstError := parsed.Get("items.0.index.error.reason").String()
+		if firstError == "" {
+			firstError = "unknown bulk error"
+		}
+		return fmt.Errorf("elasticsearch bulk export failed: %s", firstError)
+	}
+	return nil
 }
 
 func searchElasticsearchByTraceID(traceID string) ([]Event, error) {

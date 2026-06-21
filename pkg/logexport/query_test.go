@@ -109,3 +109,38 @@ func TestBuildSessionTraceView(t *testing.T) {
 	require.Len(t, view.Turns, 1)
 	assert.Equal(t, "req", view.Turns[0].Detail.ClientRequest)
 }
+
+func TestBuildSessionTraceViewDedupesExportEvents(t *testing.T) {
+	traceID := "11111111-1111-1111-1111-111111111111"
+	view := buildSessionTraceView(traceID, []Event{
+		{
+			EventType:     EventTypeConsumeLog,
+			TraceID:       traceID,
+			TurnIndex:     1,
+			Status:        "success",
+			CreatedAt:     100,
+		},
+		{
+			EventType:         EventTypeSessionTurn,
+			TraceID:           traceID,
+			TurnIndex:         1,
+			Status:            "success",
+			ClientRequest:     "req",
+			AssistantResponse: "resp",
+			CreatedAt:         100,
+		},
+		{
+			EventType:     EventTypeErrorLog,
+			TraceID:       traceID,
+			TurnIndex:     1,
+			Status:        "error",
+			ErrorMessage:  "failed",
+			CreatedAt:     100,
+		},
+	}, "clickhouse")
+	require.NotNil(t, view)
+	require.Len(t, view.Turns, 1)
+	assert.Equal(t, "req", view.Turns[0].Detail.ClientRequest)
+	assert.Equal(t, "error", view.Turns[0].Status)
+	assert.Equal(t, "failed", view.Turns[0].ErrorMessage)
+}

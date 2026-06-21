@@ -400,13 +400,18 @@ func recordSessionTraceTurn(
 
 func GetSessionTraceFullView(traceID string) (*SessionTraceFullView, error) {
 	localView, localErr := buildLocalSessionTraceFullView(traceID)
-	if logexport.IsEnabled() {
-		if logexport.ShouldPreferExternalTraceQuery() || localErr != nil {
-			if externalView, err := logexport.QuerySessionTrace(traceID); err == nil && externalView != nil {
-				return convertExternalSessionTraceView(externalView), nil
+
+	if logexport.IsEnabled() && logexport.ShouldPreferExternalTraceQuery() {
+		if externalView, err := logexport.QuerySessionTrace(traceID); err == nil && externalView != nil {
+			converted := convertExternalSessionTraceView(externalView)
+			if localErr == nil && localView != nil && len(localView.Turns) > len(converted.Turns) {
+				localView.DataSource = "local"
+				return localView, nil
 			}
+			return converted, nil
 		}
 	}
+
 	if localErr != nil {
 		if logexport.IsEnabled() {
 			if externalView, err := logexport.QuerySessionTrace(traceID); err == nil && externalView != nil {
@@ -415,6 +420,7 @@ func GetSessionTraceFullView(traceID string) (*SessionTraceFullView, error) {
 		}
 		return nil, localErr
 	}
+
 	localView.DataSource = "local"
 	return localView, nil
 }
@@ -492,4 +498,23 @@ func convertExternalSessionTraceView(external *logexport.SessionTraceQueryView) 
 		view.Turns = append(view.Turns, item)
 	}
 	return view
+}
+
+func GetExternalSessionTraceTurnDetail(traceID string, turnIndex int) (*model.SessionTraceTurnDetail, error) {
+	if !logexport.IsEnabled() {
+		return nil, fmt.Errorf("log export is not enabled")
+	}
+	detail, err := logexport.GetSessionTraceTurnDetail(traceID, turnIndex)
+	if err != nil {
+		return nil, err
+	}
+	return &model.SessionTraceTurnDetail{
+		TraceId:           detail.TraceID,
+		TurnIndex:         detail.TurnIndex,
+		RequestId:         detail.RequestID,
+		ClientRequest:     detail.ClientRequest,
+		AssistantResponse: detail.AssistantResponse,
+		IsStream:          detail.IsStream,
+		Truncated:         detail.Truncated,
+	}, nil
 }

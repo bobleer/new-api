@@ -159,7 +159,7 @@ func searchClickHouseByTraceID(traceID string) ([]Event, error) {
 		return nil, fmt.Errorf("clickhouse is not configured")
 	}
 	query := fmt.Sprintf(
-		"SELECT event_type, trace_id, request_id, upstream_request_id, log_id, turn_index, user_id, username, token_id, token_name, model_name, channel_id, status, log_type, prompt_tokens, completion_tokens, quota, use_time_seconds, is_stream, group_name, content, error_message, client_request, assistant_response, other, toUnixTimestamp(created_at) AS created_at FROM %s WHERE trace_id = {trace_id:String} ORDER BY turn_index ASC, created_at ASC FORMAT JSONEachRow",
+		"SELECT event_type, trace_id, request_id, upstream_request_id, log_id, turn_index, user_id, username, token_id, token_name, model_name, channel_id, status, log_type, prompt_tokens, completion_tokens, quota, use_time_seconds, is_stream, group_name, content, error_message, client_request, assistant_response, other, toUnixTimestamp(created_at) AS created_at FROM %s WHERE trace_id = {trace_id:String} ORDER BY turn_index ASC, created_at ASC LIMIT 1000 FORMAT JSONEachRow",
 		clickHouseQualifiedTable(setting),
 	)
 	endpoint := trimTrailingSlash(setting.ClickHouseURL) + "/?" + url.Values{

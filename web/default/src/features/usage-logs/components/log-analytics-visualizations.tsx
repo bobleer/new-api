@@ -213,7 +213,7 @@ export function LogAnalyticsVisualizations({
           chartKey='analytics-time-series'
         />
         <AnalyticsChartCard
-          title={t('Activity Heatmap')}
+          title={t('Activity Heatmap (UTC)')}
           icon={<Grid3X3 className='size-4' aria-hidden='true' />}
           loading={loading}
           empty={!insights?.heatmap?.length}
@@ -236,11 +236,16 @@ export function LogAnalyticsVisualizations({
         />
 
         <Card className='border-border/60 shadow-xs'>
-          <CardHeader className='pb-2'>
+          <CardHeader className='space-y-1 pb-2'>
             <CardTitle className='flex items-center gap-2 text-sm'>
               <AlertTriangle className='size-4 text-rose-500' aria-hidden='true' />
               {t('Error Localization')}
             </CardTitle>
+            {onApplyErrorFilter ? (
+              <p className='text-muted-foreground text-xs font-normal'>
+                {t('Click a row to filter breakdown by model and channel.')}
+              </p>
+            ) : null}
           </CardHeader>
           <CardContent className='overflow-auto'>
             {loading ? (

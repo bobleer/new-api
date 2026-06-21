@@ -19,6 +19,8 @@ For commercial licensing, please contact support@quantumnous.com
 import z from 'zod'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { UsageLogs } from '@/features/usage-logs'
+import { useAuthStore } from '@/stores/auth-store'
+import { ROLE } from '@/lib/roles'
 import {
   isUsageLogsSectionId,
   USAGE_LOGS_DEFAULT_SECTION,
@@ -50,11 +52,22 @@ const usageLogsSearchSchema = z.object({
   startTime: z.number().optional(),
   endTime: z.number().optional(),
   groupBy: z.enum(['channel', 'token']).optional().catch('channel'),
+  traceId: z.string().optional().catch(''),
 })
 
 export const Route = createFileRoute('/_authenticated/usage-logs/$section')({
   beforeLoad: ({ params, search }) => {
     if (!isUsageLogsSectionId(params.section)) {
+      throw redirect({
+        to: '/usage-logs/$section',
+        params: { section: USAGE_LOGS_DEFAULT_SECTION },
+      })
+    }
+    const { auth } = useAuthStore.getState()
+    if (
+      params.section === 'session-trace' &&
+      (!auth.user || auth.user.role < ROLE.ADMIN)
+    ) {
       throw redirect({
         to: '/usage-logs/$section',
         params: { section: USAGE_LOGS_DEFAULT_SECTION },

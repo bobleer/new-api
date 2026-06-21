@@ -16,6 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { Link } from '@tanstack/react-router'
 import {
   Copy,
   Check,
@@ -607,6 +608,22 @@ export function DetailsDialog(props: DetailsDialogProps) {
               mono
             />
           )}
+          {props.isAdmin && other?.trace_id ? (
+            <DetailRow
+              label={t('Trace ID')}
+              value={
+                <Link
+                  to='/usage-logs/$section'
+                  params={{ section: 'session-trace' }}
+                  search={{ traceId: other.trace_id }}
+                  className='text-primary font-mono text-xs underline-offset-4 hover:underline'
+                >
+                  {other.trace_id}
+                </Link>
+              }
+              mono
+            />
+          ) : null}
 
           {props.isAdmin && props.log.channel > 0 && (
             <DetailRow

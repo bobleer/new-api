@@ -16,8 +16,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { getRouteApi } from '@tanstack/react-router'
 import { Download, GitBranch, RefreshCw, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -41,6 +42,8 @@ import {
 } from '../api'
 import type { SessionTraceFullView } from '../types'
 import { SessionTraceTimeline } from './session-trace-timeline'
+
+const route = getRouteApi('/_authenticated/usage-logs/$section')
 
 function formatTimestamp(ts: number) {
   if (!ts) return '-'
@@ -133,8 +136,16 @@ function TurnDetailBlock(props: {
 
 export function SessionTracePanel() {
   const { t } = useTranslation()
-  const [traceIdInput, setTraceIdInput] = useState('')
-  const [activeTraceId, setActiveTraceId] = useState('')
+  const searchParams = route.useSearch()
+  const [traceIdInput, setTraceIdInput] = useState(searchParams.traceId ?? '')
+  const [activeTraceId, setActiveTraceId] = useState(searchParams.traceId ?? '')
+
+  useEffect(() => {
+    if (searchParams.traceId && searchParams.traceId !== activeTraceId) {
+      setTraceIdInput(searchParams.traceId)
+      setActiveTraceId(searchParams.traceId)
+    }
+  }, [activeTraceId, searchParams.traceId])
 
   const { data, isLoading, isFetching, refetch, error } = useQuery({
     queryKey: ['session-trace', activeTraceId],

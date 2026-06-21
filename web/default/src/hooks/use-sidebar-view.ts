@@ -51,9 +51,17 @@ export function useSidebarView(): ResolvedSidebarView {
 
   const rootNavGroups = useMemo<NavGroup[]>(() => {
     const isAdmin = userRole !== undefined && userRole >= ROLE.ADMIN
-    return configFilteredRoot.filter((group) =>
-      group.id === 'admin' ? isAdmin : true
-    )
+    return configFilteredRoot
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) => {
+          if (item.url === '/usage-logs/session-trace') {
+            return isAdmin
+          }
+          return true
+        }),
+      }))
+      .filter((group) => (group.id === 'admin' ? isAdmin : true))
   }, [configFilteredRoot, userRole])
 
   const view = resolveSidebarView(pathname)
