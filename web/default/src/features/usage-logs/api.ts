@@ -83,6 +83,13 @@ export const getUserLogStats = (
   params: Omit<GetLogStatsParams, 'username' | 'channel'> = {}
 ) => fetchLogStats('/api/log', params, false)
 
+export async function downloadErrorLogDetail(detailId: string): Promise<Blob> {
+  const res = await api.get(`/api/log/error-detail/${detailId}`, {
+    responseType: 'blob',
+  })
+  return res.data
+}
+
 export async function getUserInfo(
   userId: number
 ): Promise<{ success: boolean; message?: string; data?: UserInfo }> {

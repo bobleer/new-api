@@ -638,6 +638,10 @@ func DeleteOldLog(ctx context.Context, targetTimestamp int64, limit int) (int64,
 			return total, ctx.Err()
 		}
 
+		if _, err := CleanupErrorLogDetailsBefore(targetTimestamp, limit); err != nil {
+			common.SysLog("failed to cleanup error log detail files: " + err.Error())
+		}
+
 		result := LOG_DB.Where("created_at < ?", targetTimestamp).Limit(limit).Delete(&Log{})
 		if nil != result.Error {
 			return total, result.Error

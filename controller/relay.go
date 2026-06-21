@@ -396,9 +396,49 @@ func processChannelError(c *gin.Context, channelError types.ChannelError, err *t
 			startTime = time.Now()
 		}
 		useTimeSeconds := int(time.Since(startTime).Seconds())
+		requestPath := ""
+		if c.Request != nil && c.Request.URL != nil {
+			requestPath = c.Request.URL.Path
+		}
+		detailID := model.NewErrorDetailID()
+		detail := model.BuildErrorLogDetailPayload(
+			detailID,
+			userId,
+			err.ErrorWithStatusCode(),
+			string(err.GetErrorType()),
+			string(err.GetErrorCode()),
+			err.StatusCode,
+			readClientRequestBody(c),
+			err.UpstreamResponseBody(),
+			requestPath,
+			modelName,
+			channelId,
+			c.GetString("channel_name"),
+			common.GetContextKeyBool(c, constant.ContextKeyIsStream),
+			c.GetString(common.RequestIdKey),
+			c.GetString(common.UpstreamRequestIdKey),
+		)
+		if saveErr := model.SaveErrorLogDetail(detail); saveErr != nil {
+			logger.LogError(c, "failed to save error log detail: "+saveErr.Error())
+		} else {
+			other["error_detail_id"] = detailID
+			other["has_error_detail"] = true
+		}
 		model.RecordErrorLog(c, userId, channelId, modelName, tokenName, err.MaskSensitiveErrorWithStatusCode(), tokenId, useTimeSeconds, common.GetContextKeyBool(c, constant.ContextKeyIsStream), userGroup, other)
 	}
 
+}
+
+func readClientRequestBody(c *gin.Context) string {
+	storage, err := common.GetBodyStorage(c)
+	if err != nil || storage == nil {
+		return ""
+	}
+	body, err := storage.Bytes()
+	if err != nil {
+		return ""
+	}
+	return string(body)
 }
 
 func RelayMidjourney(c *gin.Context) {

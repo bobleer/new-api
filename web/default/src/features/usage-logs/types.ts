@@ -209,6 +209,12 @@ export interface LogOtherData {
   subscription_consumed?: number
   subscription_remain?: number
   subscription_total?: number
+  // Error log detail fields (type=5)
+  error_detail_id?: string
+  has_error_detail?: boolean
+  status_code?: number
+  error_type?: string
+  error_code?: string
 }
 
 /**

@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/model"
@@ -170,4 +172,44 @@ func DeleteHistoryLogs(c *gin.Context) {
 		"data":    count,
 	})
 	return
+}
+
+func GetErrorLogDetail(c *gin.Context) {
+	detailID := strings.TrimSpace(c.Param("detail_id"))
+	if !model.IsValidErrorDetailID(detailID) {
+		common.ApiErrorMsg(c, "invalid error detail id")
+		return
+	}
+
+	logRow, err := model.FindLogByErrorDetailID(detailID)
+	if err != nil {
+		common.ApiErrorMsg(c, "error detail not found")
+		return
+	}
+
+	userId := c.GetInt("id")
+	if c.GetInt("role") < common.RoleAdminUser && logRow.UserId != userId {
+		c.JSON(http.StatusForbidden, gin.H{
+			"success": false,
+			"message": "无权访问该错误详情",
+		})
+		return
+	}
+
+	detail, err := model.LoadErrorLogDetail(detailID)
+	if err != nil {
+		common.ApiErrorMsg(c, "error detail file not found")
+		return
+	}
+	detail.LogID = logRow.Id
+
+	data, err := common.Marshal(detail)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+
+	filename := fmt.Sprintf("error-log-%s.json", detailID)
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+	c.Data(http.StatusOK, "application/json; charset=utf-8", data)
 }

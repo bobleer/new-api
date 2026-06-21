@@ -30,8 +30,12 @@ import {
   UserCog,
   Info,
   LogIn,
+  Download,
+  Loader2,
 } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { formatBillingCurrencyFromUSD } from '@/lib/currency'
 import { formatLogQuota, formatTokens, formatUseTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -54,6 +58,7 @@ import {
   getResponseTimeColor,
   renderAuditContent,
 } from '../../lib/format'
+import { downloadErrorLogDetail } from '../../api'
 import {
   getLogTypeConfig,
   isPerCallBilling,
@@ -407,9 +412,16 @@ interface DetailsDialogProps {
 export function DetailsDialog(props: DetailsDialogProps) {
   const { t } = useTranslation()
   const { copiedText, copyToClipboard } = useCopyToClipboard({ notify: false })
+  const [isDownloadingErrorDetail, setIsDownloadingErrorDetail] = useState(false)
   const details = props.log.content ?? ''
   const other = parseLogOther(props.log.other)
   const typeConfig = getLogTypeConfig(props.log.type)
+
+  const isError = props.log.type === 5
+  const errorDetailId =
+    other?.error_detail_id && other.has_error_detail
+      ? other.error_detail_id
+      : undefined
 
   const isViolation = isViolationFeeLog(other)
   const isRefund = props.log.type === 6
@@ -532,6 +544,24 @@ export function DetailsDialog(props: DetailsDialogProps) {
   const useChannel = other?.admin_info?.use_channel
   const channelChain =
     useChannel && useChannel.length > 0 ? useChannel.join(' → ') : undefined
+
+  const handleDownloadErrorDetail = async () => {
+    if (!errorDetailId || isDownloadingErrorDetail) return
+    setIsDownloadingErrorDetail(true)
+    try {
+      const blob = await downloadErrorLogDetail(errorDetailId)
+      const url = URL.createObjectURL(blob)
+      const anchor = document.createElement('a')
+      anchor.href = url
+      anchor.download = `error-log-${errorDetailId}.json`
+      anchor.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      toast.error(t('Failed to download error details'))
+    } finally {
+      setIsDownloadingErrorDetail(false)
+    }
+  }
 
   return (
     <Dialog
@@ -1120,7 +1150,25 @@ export function DetailsDialog(props: DetailsDialogProps) {
         {/* Content */}
         {details && (
           <div className='space-y-1.5'>
-            <Label className='text-xs font-semibold'>{t('Content')}</Label>
+            <div className='flex items-center justify-between gap-2'>
+              <Label className='text-xs font-semibold'>{t('Content')}</Label>
+              {isError && errorDetailId && (
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='h-7 gap-1.5 px-2 text-xs'
+                  onClick={() => void handleDownloadErrorDetail()}
+                  disabled={isDownloadingErrorDetail}
+                >
+                  {isDownloadingErrorDetail ? (
+                    <Loader2 className='size-3.5 animate-spin' aria-hidden='true' />
+                  ) : (
+                    <Download className='size-3.5' aria-hidden='true' />
+                  )}
+                  {t('Download full conversation')}
+                </Button>
+              )}
+            </div>
             <div className='bg-muted/30 relative min-w-0 overflow-hidden rounded-md border p-2.5'>
               <Button
                 variant='ghost'

@@ -148,8 +148,18 @@ func initConstantEnv() {
 	constant.NotificationLimitDurationMinute = GetEnvOrDefault("NOTIFICATION_LIMIT_DURATION_MINUTE", 10)
 	// GenerateDefaultToken 是否生成初始令牌，默认关闭。
 	constant.GenerateDefaultToken = GetEnvOrDefaultBool("GENERATE_DEFAULT_TOKEN", false)
-	// 是否启用错误日志
-	constant.ErrorLogEnabled = GetEnvOrDefaultBool("ERROR_LOG_ENABLED", false)
+	// 是否启用错误日志（默认开启）
+	constant.ErrorLogEnabled = GetEnvOrDefaultBool("ERROR_LOG_ENABLED", true)
+	constant.ErrorLogDetailDir = GetEnvOrDefaultString("ERROR_LOG_DETAIL_DIR", "./data/error-log-details")
+	constant.ErrorLogDetailMaxMB = GetEnvOrDefault("ERROR_LOG_DETAIL_MAX_MB", 4)
+	if constant.ErrorLogDetailDir != "" {
+		if absDir, err := filepath.Abs(constant.ErrorLogDetailDir); err == nil {
+			constant.ErrorLogDetailDir = absDir
+		}
+		if _, err := os.Stat(constant.ErrorLogDetailDir); os.IsNotExist(err) {
+			_ = os.MkdirAll(constant.ErrorLogDetailDir, 0755)
+		}
+	}
 	// 任务轮询时查询的最大数量
 	constant.TaskQueryLimit = GetEnvOrDefault("TASK_QUERY_LIMIT", 1000)
 	// 异步任务超时时间（分钟），超过此时间未完成的任务将被标记为失败并退款。0 表示禁用。

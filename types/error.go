@@ -88,14 +88,15 @@ const (
 )
 
 type NewAPIError struct {
-	Err            error
-	RelayError     any
-	skipRetry      bool
-	recordErrorLog *bool
-	errorType      ErrorType
-	errorCode      ErrorCode
-	StatusCode     int
-	Metadata       json.RawMessage
+	Err                   error
+	RelayError            any
+	skipRetry             bool
+	recordErrorLog        *bool
+	errorType             ErrorType
+	errorCode             ErrorCode
+	StatusCode            int
+	Metadata              json.RawMessage
+	upstreamResponseBody  string
 }
 
 // Unwrap enables errors.Is / errors.As to work with NewAPIError by exposing the underlying error.
@@ -171,6 +172,20 @@ func (e *NewAPIError) MaskSensitiveErrorWithStatusCode() string {
 		return fmt.Sprintf("status_code=%d", e.StatusCode)
 	}
 	return fmt.Sprintf("status_code=%d, %s", e.StatusCode, msg)
+}
+
+func (e *NewAPIError) UpstreamResponseBody() string {
+	if e == nil {
+		return ""
+	}
+	return e.upstreamResponseBody
+}
+
+func (e *NewAPIError) SetUpstreamResponseBody(body string) {
+	if e == nil {
+		return
+	}
+	e.upstreamResponseBody = body
 }
 
 func (e *NewAPIError) SetMessage(message string) {
