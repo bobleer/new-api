@@ -40,6 +40,7 @@ import {
   getSessionTrace,
 } from '../api'
 import type { SessionTraceFullView } from '../types'
+import { SessionTraceTimeline } from './session-trace-timeline'
 
 function formatTimestamp(ts: number) {
   if (!ts) return '-'
@@ -255,6 +256,7 @@ export function SessionTracePanel() {
               </Badge>
             </div>
           ) : null}
+          <SessionTraceTimeline turns={data.turns} />
           <Card className='min-h-0 flex-1 border-border/60 shadow-xs'>
             <CardHeader className='pb-3'>
               <CardTitle className='text-base'>{t('Conversation Turns')}</CardTitle>

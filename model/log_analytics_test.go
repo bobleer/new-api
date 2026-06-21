@@ -80,3 +80,32 @@ func TestGetLogAnalyticsRequiresTimeRange(t *testing.T) {
 	_, err := GetLogAnalytics(LogAnalyticsParams{GroupBy: LogAnalyticsGroupByChannel})
 	require.Error(t, err)
 }
+
+func TestGetLogAnalyticsInsights(t *testing.T) {
+	now := common.GetTimestamp()
+	username := "analytics-user-insights-test"
+	base := now - 3600
+	logs := []Log{
+		{UserId: 70004, Username: username, Type: LogTypeConsume, CreatedAt: base + 600, ChannelId: 3, ModelName: "gpt-4", Group: "default", PromptTokens: 10, CompletionTokens: 5},
+		{UserId: 70004, Username: username, Type: LogTypeError, CreatedAt: base + 1200, ChannelId: 3, ModelName: "gpt-4", Group: "default", Content: "rate limit exceeded"},
+		{UserId: 70004, Username: username, Type: LogTypeError, CreatedAt: base + 1800, ChannelId: 3, ModelName: "gpt-4", Group: "default", Content: "rate limit exceeded"},
+		{UserId: 70004, Username: username, Type: LogTypeConsume, CreatedAt: base + 2400, ChannelId: 4, ModelName: "claude-3", Group: "vip", PromptTokens: 20, CompletionTokens: 10},
+	}
+	require.NoError(t, LOG_DB.Create(&logs).Error)
+
+	result, err := GetLogAnalytics(LogAnalyticsParams{
+		UserID:         70004,
+		Username:       username,
+		StartTimestamp: base,
+		EndTimestamp:   now,
+		GroupBy:        LogAnalyticsGroupByChannel,
+	})
+	require.NoError(t, err)
+	require.NotNil(t, result.Insights)
+	assert.NotEmpty(t, result.Insights.TimeSeries)
+	assert.NotEmpty(t, result.Insights.Heatmap)
+	require.NotEmpty(t, result.Insights.Errors)
+	assert.Equal(t, int64(2), result.Insights.Errors[0].Count)
+	assert.Contains(t, result.Insights.Errors[0].Message, "rate limit")
+	assert.NotEmpty(t, result.Insights.FlowLinks)
+}

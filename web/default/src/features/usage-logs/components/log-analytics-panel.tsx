@@ -50,6 +50,7 @@ import { LOG_ANALYTICS_TIME_PRESETS } from '../constants'
 import { buildAnalyticsApiParams } from '../lib/analytics'
 import type { LogAnalyticsGroupBy, LogAnalyticsResult } from '../types'
 import { CompactDateTimeRangePicker } from './compact-date-time-range-picker'
+import { LogAnalyticsVisualizations } from './log-analytics-visualizations'
 
 const route = getRouteApi('/_authenticated/usage-logs/$section')
 
@@ -168,6 +169,21 @@ export function LogAnalyticsPanel() {
       username: draftFilters.username.trim() || undefined,
     })
   }
+
+  const applyErrorLocalizationFilter = useCallback(
+    (filter: { model?: string; channel?: string }) => {
+      setDraftFilters((prev) => ({
+        ...prev,
+        model: filter.model ?? prev.model,
+        channel: filter.channel ?? prev.channel,
+      }))
+      updateSearch({
+        model: filter.model || undefined,
+        channel: filter.channel || undefined,
+      })
+    },
+    [updateSearch]
+  )
 
   const formatFailureRate = (rate: number) => `${rate.toFixed(2)}%`
 
@@ -363,6 +379,12 @@ export function LogAnalyticsPanel() {
           </>
         )}
       </div>
+
+      <LogAnalyticsVisualizations
+        insights={analytics.insights}
+        loading={isLoading}
+        onApplyErrorFilter={applyErrorLocalizationFilter}
+      />
 
       <Card className='min-h-0 flex-1 border-border/60 shadow-xs'>
         <CardHeader className='pb-3'>

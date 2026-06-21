@@ -47,8 +47,9 @@ type LogAnalyticsGroupRow struct {
 }
 
 type LogAnalyticsResult struct {
-	Summary LogAnalyticsSummary    `json:"summary"`
-	Groups  []LogAnalyticsGroupRow `json:"groups"`
+	Summary  LogAnalyticsSummary   `json:"summary"`
+	Groups   []LogAnalyticsGroupRow `json:"groups"`
+	Insights *LogAnalyticsInsights  `json:"insights,omitempty"`
 }
 
 type logAnalyticsAggregateRow struct {
@@ -186,6 +187,12 @@ SUM(CASE WHEN logs.type = ? THEN 1 ELSE 0 END) AS failure_count`
 		}
 		result.Groups = append(result.Groups, groupRow)
 	}
+
+	insights, err := buildLogAnalyticsInsights(filteredTx, params)
+	if err != nil {
+		return nil, err
+	}
+	result.Insights = insights
 
 	return result, nil
 }

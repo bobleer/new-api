@@ -240,6 +240,49 @@ export interface LogAnalyticsGroupRow {
 export interface LogAnalyticsResult {
   summary: LogAnalyticsSummary
   groups: LogAnalyticsGroupRow[]
+  insights?: LogAnalyticsInsights
+}
+
+export interface LogAnalyticsTimeSeriesPoint {
+  bucket_start: number
+  call_count: number
+  failure_count: number
+  token_count: number
+  failure_rate: number
+}
+
+export interface LogAnalyticsHeatmapCell {
+  weekday: number
+  hour: number
+  call_count: number
+  failure_count: number
+  failure_rate: number
+}
+
+export interface LogAnalyticsErrorCluster {
+  message: string
+  count: number
+  latest_at: number
+  model_name?: string
+  channel_id?: number
+  channel_name?: string
+}
+
+export interface LogAnalyticsFlowLink {
+  source: string
+  target: string
+  source_kind: string
+  target_kind: string
+  call_count: number
+  failure_count: number
+}
+
+export interface LogAnalyticsInsights {
+  bucket_seconds: number
+  time_series: LogAnalyticsTimeSeriesPoint[]
+  heatmap: LogAnalyticsHeatmapCell[]
+  errors: LogAnalyticsErrorCluster[]
+  flow_links: LogAnalyticsFlowLink[]
 }
 
 export interface GetLogAnalyticsParams {
