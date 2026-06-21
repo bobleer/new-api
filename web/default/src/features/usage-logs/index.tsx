@@ -31,6 +31,7 @@ import {
 } from './components/usage-logs-provider'
 import { UsageLogsTable } from './components/usage-logs-table'
 import { LogAnalyticsPanel } from './components/log-analytics-panel'
+import { SessionTracePanel } from './components/session-trace-panel'
 import {
   isUsageLogsSectionId,
   USAGE_LOGS_DEFAULT_SECTION,
@@ -46,6 +47,9 @@ const SECTION_META: Record<UsageLogsSectionId, { titleKey: string }> = {
   },
   analytics: {
     titleKey: 'Log Analytics',
+  },
+  'session-trace': {
+    titleKey: 'Session Trace',
   },
   drawing: {
     titleKey: 'Drawing Logs',
@@ -111,6 +115,7 @@ function UsageLogsContent() {
   const showTaskSwitcher =
     activeCategory !== 'common' &&
     activeCategory !== 'analytics' &&
+    activeCategory !== 'session-trace' &&
     visibleSections.length > 1
 
   return (
@@ -135,6 +140,8 @@ function UsageLogsContent() {
             <div className='min-h-0 flex-1'>
               {activeCategory === 'analytics' ? (
                 <LogAnalyticsPanel />
+              ) : activeCategory === 'session-trace' ? (
+                <SessionTracePanel />
               ) : (
                 <UsageLogsTable logCategory={activeCategory} />
               )}

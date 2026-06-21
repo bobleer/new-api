@@ -18,6 +18,10 @@ var GenerateDefaultToken bool
 var ErrorLogEnabled bool
 var ErrorLogDetailDir string
 var ErrorLogDetailMaxMB int
+var SessionTraceEnabled bool
+var SessionTraceDir string
+var SessionTraceMaxMB int
+var SessionTraceTTLDays int
 var TaskQueryLimit int
 var TaskTimeoutMinutes int
 

@@ -160,6 +160,18 @@ func initConstantEnv() {
 			_ = os.MkdirAll(constant.ErrorLogDetailDir, 0755)
 		}
 	}
+	constant.SessionTraceEnabled = GetEnvOrDefaultBool("SESSION_TRACE_ENABLED", true)
+	constant.SessionTraceDir = GetEnvOrDefaultString("SESSION_TRACE_DIR", "./data/session-traces")
+	constant.SessionTraceMaxMB = GetEnvOrDefault("SESSION_TRACE_MAX_MB", 4)
+	constant.SessionTraceTTLDays = GetEnvOrDefault("SESSION_TRACE_TTL_DAYS", 7)
+	if constant.SessionTraceDir != "" {
+		if absDir, err := filepath.Abs(constant.SessionTraceDir); err == nil {
+			constant.SessionTraceDir = absDir
+		}
+		if _, err := os.Stat(constant.SessionTraceDir); os.IsNotExist(err) {
+			_ = os.MkdirAll(constant.SessionTraceDir, 0755)
+		}
+	}
 	// 任务轮询时查询的最大数量
 	constant.TaskQueryLimit = GetEnvOrDefault("TASK_QUERY_LIMIT", 1000)
 	// 异步任务超时时间（分钟），超过此时间未完成的任务将被标记为失败并退款。0 表示禁用。

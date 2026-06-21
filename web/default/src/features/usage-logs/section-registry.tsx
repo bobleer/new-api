@@ -33,6 +33,11 @@ const USAGE_LOGS_SECTIONS = [
     build: () => null,
   },
   {
+    id: 'session-trace',
+    titleKey: 'Session Trace',
+    build: () => null,
+  },
+  {
     id: 'drawing',
     titleKey: 'Drawing Logs',
     build: () => null, // Content is rendered directly in the page component

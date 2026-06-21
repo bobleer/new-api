@@ -67,6 +67,7 @@ export const Route = createFileRoute('/_authenticated/usage-logs/$section')({
     if (
       params.section !== 'common' &&
       params.section !== 'analytics' &&
+      params.section !== 'session-trace' &&
       hasTypeSearch
     ) {
       throw redirect({

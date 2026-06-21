@@ -314,6 +314,8 @@ func SetApiRouter(router *gin.Engine) {
 		logRoute.GET("/analytics", middleware.AdminAuth(), controller.GetAllLogAnalytics)
 		logRoute.GET("/self/analytics", middleware.UserAuth(), controller.GetUserLogAnalytics)
 		logRoute.GET("/error-detail/:detail_id", middleware.UserAuth(), controller.GetErrorLogDetail)
+		logRoute.GET("/session-trace/:trace_id", middleware.AdminAuth(), controller.GetSessionTrace)
+		logRoute.GET("/session-trace/:trace_id/turn/:turn_index", middleware.AdminAuth(), controller.DownloadSessionTraceTurn)
 
 		dataRoute := apiRouter.Group("/data")
 		dataRoute.GET("/", middleware.AdminAuth(), controller.GetAllQuotaDates)

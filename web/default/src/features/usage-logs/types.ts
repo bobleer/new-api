@@ -259,6 +259,55 @@ export interface GetLogAnalyticsResponse {
   data?: LogAnalyticsResult
 }
 
+// ============================================================================
+// Session Trace Types
+// ============================================================================
+
+export interface SessionTraceTurnDetail {
+  trace_id: string
+  turn_index: number
+  request_id?: string
+  client_request?: string
+  assistant_response?: string
+  is_stream?: boolean
+  truncated?: boolean
+}
+
+export interface SessionTraceTurn {
+  id: number
+  trace_id: string
+  turn_index: number
+  request_id?: string
+  user_id: number
+  token_id: number
+  model_name?: string
+  channel_id?: number
+  status: string
+  prompt_tokens: number
+  completion_tokens: number
+  is_stream: boolean
+  error_message?: string
+  created_at: number
+  detail?: SessionTraceTurnDetail
+}
+
+export interface SessionTraceFullView {
+  trace_id: string
+  user_id: number
+  token_id: number
+  model_name?: string
+  turn_count: number
+  created_at: number
+  last_activity_at: number
+  turns: SessionTraceTurn[]
+}
+
+export interface GetSessionTraceResponse {
+  success: boolean
+  message?: string
+  data?: SessionTraceFullView
+}
+
 /**
  * Log statistics data
  */

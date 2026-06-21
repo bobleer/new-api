@@ -458,6 +458,14 @@ func PostTextConsumeQuota(ctx *gin.Context, relayInfo *relaycommon.RelayInfo, us
 	if tieredBillingApplied {
 		InjectTieredBillingInfo(other, relayInfo, tieredResult)
 	}
+	if traceID := common.GetContextKeyString(ctx, constant.ContextKeyTraceId); traceID != "" {
+		other["trace_id"] = traceID
+	}
+
+	SetSessionTraceTurnMeta(ctx, SessionTraceTurnMeta{
+		PromptTokens:     summary.PromptTokens,
+		CompletionTokens: summary.CompletionTokens,
+	})
 
 	model.RecordConsumeLog(ctx, relayInfo.UserId, model.RecordConsumeLogParams{
 		ChannelId:        relayInfo.ChannelId,

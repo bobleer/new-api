@@ -123,6 +123,19 @@ func Relay(c *gin.Context, relayFormat types.RelayFormat) {
 		return
 	}
 
+	service.BeginSessionTrace(c, relayFormat, readClientRequestBody(c))
+	defer func() {
+		if service.IsSessionTraceActive(c) {
+			status := "success"
+			errMsg := ""
+			if newAPIError != nil {
+				status = "error"
+				errMsg = newAPIError.Error()
+			}
+			service.FinishSessionTraceTurn(c, status, errMsg)
+		}
+	}()
+
 	needSensitiveCheck := setting.ShouldCheckPromptSensitive()
 	needCountToken := constant.CountToken
 	// Avoid building huge CombineText (strings.Join) when token counting and sensitive check are both disabled.

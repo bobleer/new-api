@@ -23,6 +23,7 @@ import {
   CreditCard,
   FileText,
   FlaskConical,
+  GitBranch,
   Key,
   LayoutDashboard,
   ListTodo,
@@ -92,6 +93,11 @@ export function useSidebarData(): SidebarData {
             title: t('Log Analytics'),
             url: '/usage-logs/analytics',
             icon: BarChart3,
+          },
+          {
+            title: t('Session Trace'),
+            url: '/usage-logs/session-trace',
+            icon: GitBranch,
           },
           {
             title: t('Task Logs'),

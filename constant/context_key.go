@@ -72,4 +72,10 @@ const (
 	// fallback in authHelper (finishAdminAudit) skips its record to avoid
 	// duplicate entries.
 	ContextKeyAuditLogged ContextKey = "audit_logged"
+
+	ContextKeyTraceId                  ContextKey = "trace_id"
+	ContextKeySessionTraceActive       ContextKey = "session_trace_active"
+	ContextKeySessionTraceFinished     ContextKey = "session_trace_finished"
+	ContextKeySessionTraceMessagesRaw  ContextKey = "session_trace_messages_raw"
+	ContextKeySessionTraceTurnMeta     ContextKey = "session_trace_turn_meta"
 )

@@ -25,6 +25,7 @@ import type {
   GetLogStatsResponse,
   GetLogAnalyticsParams,
   GetLogAnalyticsResponse,
+  GetSessionTraceResponse,
   GetMidjourneyLogsParams,
   GetTaskLogsParams,
   UserInfo,
@@ -103,6 +104,26 @@ export async function getUserLogAnalytics(
   params: Omit<GetLogAnalyticsParams, 'username' | 'channel'>
 ): Promise<GetLogAnalyticsResponse> {
   const res = await api.get('/api/log/self/analytics', { params })
+  return res.data
+}
+
+export async function getSessionTrace(
+  traceId: string
+): Promise<GetSessionTraceResponse> {
+  const res = await api.get(`/api/log/session-trace/${traceId}`)
+  return res.data
+}
+
+export async function downloadSessionTraceTurn(
+  traceId: string,
+  turnIndex: number
+): Promise<Blob> {
+  const res = await api.get(
+    `/api/log/session-trace/${traceId}/turn/${turnIndex}`,
+    {
+      responseType: 'blob',
+    }
+  )
   return res.data
 }
 
