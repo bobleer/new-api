@@ -28,7 +28,7 @@ import type { UsageLog } from './data/schema'
 /**
  * Log category for different log types
  */
-export type LogCategory = 'common' | 'drawing' | 'task'
+export type LogCategory = 'common' | 'drawing' | 'task' | 'analytics'
 
 // ============================================================================
 // Filter Types
@@ -215,6 +215,48 @@ export interface LogOtherData {
   status_code?: number
   error_type?: string
   error_code?: string
+}
+
+export type LogAnalyticsGroupBy = 'channel' | 'token'
+
+export interface LogAnalyticsSummary {
+  call_count: number
+  token_count: number
+  failure_count: number
+  failure_rate: number
+}
+
+export interface LogAnalyticsGroupRow {
+  channel_id?: number
+  channel_name?: string
+  token_id?: number
+  token_name?: string
+  call_count: number
+  token_count: number
+  failure_count: number
+  failure_rate: number
+}
+
+export interface LogAnalyticsResult {
+  summary: LogAnalyticsSummary
+  groups: LogAnalyticsGroupRow[]
+}
+
+export interface GetLogAnalyticsParams {
+  start_timestamp: number
+  end_timestamp: number
+  group_by: LogAnalyticsGroupBy
+  username?: string
+  token_name?: string
+  model_name?: string
+  channel?: number
+  group?: string
+}
+
+export interface GetLogAnalyticsResponse {
+  success: boolean
+  message?: string
+  data?: LogAnalyticsResult
 }
 
 /**

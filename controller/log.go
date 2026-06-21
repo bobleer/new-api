@@ -174,6 +174,42 @@ func DeleteHistoryLogs(c *gin.Context) {
 	return
 }
 
+func GetLogAnalyticsHandler(c *gin.Context, userId int) {
+	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
+	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
+	groupBy := strings.TrimSpace(c.Query("group_by"))
+	username := c.Query("username")
+	tokenName := c.Query("token_name")
+	modelName := c.Query("model_name")
+	channel, _ := strconv.Atoi(c.Query("channel"))
+	group := c.Query("group")
+
+	result, err := model.GetLogAnalytics(model.LogAnalyticsParams{
+		UserID:         userId,
+		StartTimestamp: startTimestamp,
+		EndTimestamp:   endTimestamp,
+		GroupBy:        groupBy,
+		Username:       username,
+		TokenName:      tokenName,
+		ModelName:      modelName,
+		Channel:        channel,
+		Group:          group,
+	})
+	if err != nil {
+		common.ApiErrorMsg(c, err.Error())
+		return
+	}
+	common.ApiSuccess(c, result)
+}
+
+func GetAllLogAnalytics(c *gin.Context) {
+	GetLogAnalyticsHandler(c, 0)
+}
+
+func GetUserLogAnalytics(c *gin.Context) {
+	GetLogAnalyticsHandler(c, c.GetInt("id"))
+}
+
 func GetErrorLogDetail(c *gin.Context) {
 	detailID := strings.TrimSpace(c.Param("detail_id"))
 	if !model.IsValidErrorDetailID(detailID) {

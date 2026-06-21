@@ -28,6 +28,11 @@ const USAGE_LOGS_SECTIONS = [
     build: () => null, // Content is rendered directly in the page component
   },
   {
+    id: 'analytics',
+    titleKey: 'Log Analytics',
+    build: () => null,
+  },
+  {
     id: 'drawing',
     titleKey: 'Drawing Logs',
     build: () => null, // Content is rendered directly in the page component

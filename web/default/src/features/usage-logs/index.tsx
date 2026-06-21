@@ -30,6 +30,7 @@ import {
   useUsageLogsContext,
 } from './components/usage-logs-provider'
 import { UsageLogsTable } from './components/usage-logs-table'
+import { LogAnalyticsPanel } from './components/log-analytics-panel'
 import {
   isUsageLogsSectionId,
   USAGE_LOGS_DEFAULT_SECTION,
@@ -42,6 +43,9 @@ const TASK_LOG_SECTIONS = ['drawing', 'task'] as const
 const SECTION_META: Record<UsageLogsSectionId, { titleKey: string }> = {
   common: {
     titleKey: 'Common Logs',
+  },
+  analytics: {
+    titleKey: 'Log Analytics',
   },
   drawing: {
     titleKey: 'Drawing Logs',
@@ -103,10 +107,11 @@ function UsageLogsContent() {
     [navigate]
   )
 
-  const pageMeta =
-    activeCategory === 'common' ? SECTION_META.common : SECTION_META.task
+  const pageMeta = SECTION_META[activeCategory]
   const showTaskSwitcher =
-    activeCategory !== 'common' && visibleSections.length > 1
+    activeCategory !== 'common' &&
+    activeCategory !== 'analytics' &&
+    visibleSections.length > 1
 
   return (
     <>
@@ -128,7 +133,11 @@ function UsageLogsContent() {
               </Tabs>
             )}
             <div className='min-h-0 flex-1'>
-              <UsageLogsTable logCategory={activeCategory} />
+              {activeCategory === 'analytics' ? (
+                <LogAnalyticsPanel />
+              ) : (
+                <UsageLogsTable logCategory={activeCategory} />
+              )}
             </div>
           </div>
         </SectionPageLayout.Content>

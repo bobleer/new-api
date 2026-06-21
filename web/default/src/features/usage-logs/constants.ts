@@ -81,6 +81,13 @@ export const TIME_RANGE_PRESETS = [
   { days: 30, label: '30 Days' },
 ] as const
 
+export const LOG_ANALYTICS_TIME_PRESETS = [
+  { key: '1h', hours: 1, label: 'Last 1 Hour' },
+  { key: '1d', hours: 24, label: 'Last 1 Day' },
+  { key: '1w', hours: 24 * 7, label: 'Last 1 Week' },
+  { key: '1m', hours: 24 * 30, label: 'Last 1 Month' },
+] as const
+
 // ============================================================================
 // Common Logs Configuration
 // ============================================================================
@@ -336,6 +343,7 @@ export const LOG_CATEGORY_LABELS: Record<LogCategory, string> = {
   common: 'Common',
   drawing: 'Drawing',
   task: 'Task',
+  analytics: 'Analytics',
 }
 
 // ============================================================================

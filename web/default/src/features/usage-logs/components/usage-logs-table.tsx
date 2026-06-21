@@ -62,7 +62,7 @@ function deserializeLogTypeFilter(value: unknown): unknown[] {
 }
 
 interface UsageLogsTableProps {
-  logCategory: LogCategory
+  logCategory: Exclude<LogCategory, 'analytics'>
 }
 
 export function UsageLogsTable({ logCategory }: UsageLogsTableProps) {

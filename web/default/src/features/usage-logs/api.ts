@@ -23,6 +23,8 @@ import type {
   GetLogsResponse,
   GetLogStatsParams,
   GetLogStatsResponse,
+  GetLogAnalyticsParams,
+  GetLogAnalyticsResponse,
   GetMidjourneyLogsParams,
   GetTaskLogsParams,
   UserInfo,
@@ -87,6 +89,20 @@ export async function downloadErrorLogDetail(detailId: string): Promise<Blob> {
   const res = await api.get(`/api/log/error-detail/${detailId}`, {
     responseType: 'blob',
   })
+  return res.data
+}
+
+export async function getLogAnalytics(
+  params: GetLogAnalyticsParams
+): Promise<GetLogAnalyticsResponse> {
+  const res = await api.get('/api/log/analytics', { params })
+  return res.data
+}
+
+export async function getUserLogAnalytics(
+  params: Omit<GetLogAnalyticsParams, 'username' | 'channel'>
+): Promise<GetLogAnalyticsResponse> {
+  const res = await api.get('/api/log/self/analytics', { params })
   return res.data
 }
 
