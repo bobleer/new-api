@@ -393,6 +393,9 @@ func processChannelError(c *gin.Context, channelError types.ChannelError, err *t
 		other["error_code"] = err.GetErrorCode()
 		other["status_code"] = err.StatusCode
 		other["channel_id"] = channelId
+		if traceID := common.GetContextKeyString(c, constant.ContextKeyTraceId); traceID != "" {
+			other["trace_id"] = traceID
+		}
 		other["channel_name"] = c.GetString("channel_name")
 		other["channel_type"] = c.GetInt("channel_type")
 		adminInfo := make(map[string]interface{})
@@ -438,6 +441,13 @@ func processChannelError(c *gin.Context, channelError types.ChannelError, err *t
 			other["has_error_detail"] = true
 		}
 		model.RecordErrorLog(c, userId, channelId, modelName, tokenName, err.MaskSensitiveErrorWithStatusCode(), tokenId, useTimeSeconds, common.GetContextKeyBool(c, constant.ContextKeyIsStream), userGroup, other)
+		service.ExportErrorLogEventWithDetail(
+			c,
+			nil,
+			err.MaskSensitiveErrorWithStatusCode(),
+			detail.ClientRequest,
+			detail.UpstreamResponse,
+		)
 	}
 
 }

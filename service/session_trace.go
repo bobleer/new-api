@@ -12,6 +12,7 @@ import (
 	"github.com/QuantumNous/new-api/constant"
 	"github.com/QuantumNous/new-api/model"
 	"github.com/QuantumNous/new-api/pkg/cachex"
+	"github.com/QuantumNous/new-api/pkg/logexport"
 	"github.com/QuantumNous/new-api/types"
 
 	"github.com/bytedance/gopkg/util/gopool"
@@ -42,7 +43,8 @@ type SessionTraceTurnDetailView struct {
 
 type SessionTraceFullView struct {
 	model.SessionTrace
-	Turns []SessionTraceTurnDetailView `json:"turns"`
+	Turns      []SessionTraceTurnDetailView `json:"turns"`
+	DataSource string                       `json:"data_source,omitempty"`
 }
 
 func sessionTraceCacheInstance() *cachex.HybridCache[string] {
@@ -367,6 +369,25 @@ func recordSessionTraceTurn(
 		return
 	}
 
+	logexport.ExportSessionTurn(logexport.SessionTurnExportParams{
+		TraceID:           traceID,
+		TurnIndex:         turnIndex,
+		RequestID:         requestID,
+		LogID:             turn.Id,
+		UserID:            userID,
+		TokenID:           tokenID,
+		ModelName:         modelName,
+		ChannelID:         channelID,
+		Status:            status,
+		PromptTokens:      turnMeta.PromptTokens,
+		CompletionTokens:  turnMeta.CompletionTokens,
+		IsStream:          isStream,
+		ErrorMessage:      errorMessage,
+		ClientRequest:     detail.ClientRequest,
+		AssistantResponse: detail.AssistantResponse,
+		CreatedAt:         now,
+	})
+
 	session.TurnCount = turnIndex
 	session.LastActivityAt = now
 	session.ModelName = modelName
@@ -378,6 +399,27 @@ func recordSessionTraceTurn(
 }
 
 func GetSessionTraceFullView(traceID string) (*SessionTraceFullView, error) {
+	localView, localErr := buildLocalSessionTraceFullView(traceID)
+	if logexport.IsEnabled() {
+		if logexport.ShouldPreferExternalTraceQuery() || localErr != nil {
+			if externalView, err := logexport.QuerySessionTrace(traceID); err == nil && externalView != nil {
+				return convertExternalSessionTraceView(externalView), nil
+			}
+		}
+	}
+	if localErr != nil {
+		if logexport.IsEnabled() {
+			if externalView, err := logexport.QuerySessionTrace(traceID); err == nil && externalView != nil {
+				return convertExternalSessionTraceView(externalView), nil
+			}
+		}
+		return nil, localErr
+	}
+	localView.DataSource = "local"
+	return localView, nil
+}
+
+func buildLocalSessionTraceFullView(traceID string) (*SessionTraceFullView, error) {
 	session, err := model.GetSessionTrace(traceID)
 	if err != nil {
 		return nil, err
@@ -398,4 +440,56 @@ func GetSessionTraceFullView(traceID string) (*SessionTraceFullView, error) {
 		view.Turns = append(view.Turns, item)
 	}
 	return view, nil
+}
+
+func convertExternalSessionTraceView(external *logexport.SessionTraceQueryView) *SessionTraceFullView {
+	if external == nil {
+		return nil
+	}
+	view := &SessionTraceFullView{
+		SessionTrace: model.SessionTrace{
+			TraceId:        external.TraceID,
+			UserId:         external.UserID,
+			TokenId:        external.TokenID,
+			ModelName:      external.ModelName,
+			TurnCount:      external.TurnCount,
+			CreatedAt:      external.CreatedAt,
+			LastActivityAt: external.LastActivityAt,
+		},
+		DataSource: external.DataSource,
+		Turns:      make([]SessionTraceTurnDetailView, 0, len(external.Turns)),
+	}
+	for _, turn := range external.Turns {
+		item := SessionTraceTurnDetailView{
+			SessionTraceTurn: model.SessionTraceTurn{
+				Id:               turn.ID,
+				TraceId:          external.TraceID,
+				TurnIndex:        turn.TurnIndex,
+				RequestId:        turn.RequestID,
+				UserId:           turn.UserID,
+				TokenId:          turn.TokenID,
+				ModelName:        turn.ModelName,
+				ChannelId:        turn.ChannelID,
+				Status:           turn.Status,
+				PromptTokens:     turn.PromptTokens,
+				CompletionTokens: turn.CompletionTokens,
+				IsStream:         turn.IsStream,
+				ErrorMessage:     turn.ErrorMessage,
+				CreatedAt:        turn.CreatedAt,
+			},
+		}
+		if turn.Detail != nil {
+			item.Detail = &model.SessionTraceTurnDetail{
+				TraceId:           turn.Detail.TraceID,
+				TurnIndex:         turn.Detail.TurnIndex,
+				RequestId:         turn.Detail.RequestID,
+				ClientRequest:     turn.Detail.ClientRequest,
+				AssistantResponse: turn.Detail.AssistantResponse,
+				IsStream:          turn.Detail.IsStream,
+				Truncated:         turn.Detail.Truncated,
+			}
+		}
+		view.Turns = append(view.Turns, item)
+	}
+	return view
 }

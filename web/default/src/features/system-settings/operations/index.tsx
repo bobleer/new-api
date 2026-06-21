@@ -53,6 +53,22 @@ const defaultOperationsSettings: OperationsSettings = {
   'perf_metrics_setting.flush_interval': 5,
   'perf_metrics_setting.bucket_time': 'hour',
   'perf_metrics_setting.retention_days': 0,
+  'log_export_setting.enabled': false,
+  'log_export_setting.export_consume_logs': true,
+  'log_export_setting.export_error_logs': true,
+  'log_export_setting.export_session_turns': true,
+  'log_export_setting.prefer_external_for_trace_query': false,
+  'log_export_setting.elasticsearch_enabled': false,
+  'log_export_setting.elasticsearch_url': '',
+  'log_export_setting.elasticsearch_index': 'new-api-logs',
+  'log_export_setting.elasticsearch_username': '',
+  'log_export_setting.elasticsearch_secret': '',
+  'log_export_setting.clickhouse_enabled': false,
+  'log_export_setting.clickhouse_url': '',
+  'log_export_setting.clickhouse_database': 'default',
+  'log_export_setting.clickhouse_table': 'new_api_log_events',
+  'log_export_setting.clickhouse_username': '',
+  'log_export_setting.clickhouse_secret': '',
 }
 
 export function OperationsSettings() {

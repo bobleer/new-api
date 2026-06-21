@@ -248,6 +248,13 @@ export function SessionTracePanel() {
       {!isLoading && data ? (
         <>
           <SessionTraceSummary data={data} />
+          {data.data_source ? (
+            <div className='flex items-center gap-2'>
+              <Badge variant='outline'>
+                {t('Data source')}: {data.data_source}
+              </Badge>
+            </div>
+          ) : null}
           <Card className='min-h-0 flex-1 border-border/60 shadow-xs'>
             <CardHeader className='pb-3'>
               <CardTitle className='text-base'>{t('Conversation Turns')}</CardTitle>

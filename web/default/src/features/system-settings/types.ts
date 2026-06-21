@@ -306,6 +306,22 @@ export type OperationsSettings = {
   'perf_metrics_setting.flush_interval': number
   'perf_metrics_setting.bucket_time': 'hour' | 'minute' | '5min'
   'perf_metrics_setting.retention_days': number
+  'log_export_setting.enabled': boolean
+  'log_export_setting.export_consume_logs': boolean
+  'log_export_setting.export_error_logs': boolean
+  'log_export_setting.export_session_turns': boolean
+  'log_export_setting.prefer_external_for_trace_query': boolean
+  'log_export_setting.elasticsearch_enabled': boolean
+  'log_export_setting.elasticsearch_url': string
+  'log_export_setting.elasticsearch_index': string
+  'log_export_setting.elasticsearch_username': string
+  'log_export_setting.elasticsearch_secret': string
+  'log_export_setting.clickhouse_enabled': boolean
+  'log_export_setting.clickhouse_url': string
+  'log_export_setting.clickhouse_database': string
+  'log_export_setting.clickhouse_table': string
+  'log_export_setting.clickhouse_username': string
+  'log_export_setting.clickhouse_secret': string
 }
 
 export type SecuritySettings = {

@@ -21,6 +21,7 @@ import { EmailSettingsSection } from '../integrations/email-settings-section'
 import { MonitoringSettingsSection } from '../integrations/monitoring-settings-section'
 import { WorkerSettingsSection } from '../integrations/worker-settings-section'
 import { LogSettingsSection } from '../maintenance/log-settings-section'
+import { LogExportSettingsSection } from '../maintenance/log-export-settings-section'
 import { PerformanceSection } from '../maintenance/performance-section'
 import { UpdateCheckerSection } from '../maintenance/update-checker-section'
 import type { OperationsSettings } from '../types'
@@ -86,6 +87,50 @@ const OPERATIONS_SECTIONS = [
           WorkerValidKey: settings.WorkerValidKey,
           WorkerAllowHttpImageRequestEnabled:
             settings.WorkerAllowHttpImageRequestEnabled,
+        }}
+      />
+    ),
+  },
+  {
+    id: 'log-export',
+    titleKey: 'Log Export Integration',
+    build: (settings: OperationsSettings) => (
+      <LogExportSettingsSection
+        defaultValues={{
+          'log_export_setting.enabled':
+            settings['log_export_setting.enabled'] ?? false,
+          'log_export_setting.export_consume_logs':
+            settings['log_export_setting.export_consume_logs'] ?? true,
+          'log_export_setting.export_error_logs':
+            settings['log_export_setting.export_error_logs'] ?? true,
+          'log_export_setting.export_session_turns':
+            settings['log_export_setting.export_session_turns'] ?? true,
+          'log_export_setting.prefer_external_for_trace_query':
+            settings['log_export_setting.prefer_external_for_trace_query'] ??
+            false,
+          'log_export_setting.elasticsearch_enabled':
+            settings['log_export_setting.elasticsearch_enabled'] ?? false,
+          'log_export_setting.elasticsearch_url':
+            settings['log_export_setting.elasticsearch_url'] ?? '',
+          'log_export_setting.elasticsearch_index':
+            settings['log_export_setting.elasticsearch_index'] ?? 'new-api-logs',
+          'log_export_setting.elasticsearch_username':
+            settings['log_export_setting.elasticsearch_username'] ?? '',
+          'log_export_setting.elasticsearch_secret':
+            settings['log_export_setting.elasticsearch_secret'] ?? '',
+          'log_export_setting.clickhouse_enabled':
+            settings['log_export_setting.clickhouse_enabled'] ?? false,
+          'log_export_setting.clickhouse_url':
+            settings['log_export_setting.clickhouse_url'] ?? '',
+          'log_export_setting.clickhouse_database':
+            settings['log_export_setting.clickhouse_database'] ?? 'default',
+          'log_export_setting.clickhouse_table':
+            settings['log_export_setting.clickhouse_table'] ??
+            'new_api_log_events',
+          'log_export_setting.clickhouse_username':
+            settings['log_export_setting.clickhouse_username'] ?? '',
+          'log_export_setting.clickhouse_secret':
+            settings['log_export_setting.clickhouse_secret'] ?? '',
         }}
       />
     ),

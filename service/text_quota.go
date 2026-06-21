@@ -481,6 +481,20 @@ func PostTextConsumeQuota(ctx *gin.Context, relayInfo *relaycommon.RelayInfo, us
 		Group:            relayInfo.UsingGroup,
 		Other:            other,
 	})
+	ExportConsumeLogFromParams(ctx, relayInfo.UserId, model.RecordConsumeLogParams{
+		ChannelId:        relayInfo.ChannelId,
+		PromptTokens:     summary.PromptTokens,
+		CompletionTokens: summary.CompletionTokens,
+		ModelName:        logModel,
+		TokenName:        summary.TokenName,
+		Quota:            summary.Quota,
+		Content:          logContent,
+		TokenId:          relayInfo.TokenId,
+		UseTimeSeconds:   int(summary.UseTimeSeconds),
+		IsStream:         relayInfo.IsStream,
+		Group:            relayInfo.UsingGroup,
+		Other:            other,
+	}, ctx.GetString("username"), ctx.GetString(common.RequestIdKey), ctx.GetString(common.UpstreamRequestIdKey))
 	gopool.Go(func() {
 		perfmetrics.RecordRelaySample(relayInfo, true, int64(summary.CompletionTokens))
 	})

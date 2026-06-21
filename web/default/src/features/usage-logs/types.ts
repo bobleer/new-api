@@ -299,6 +299,7 @@ export interface SessionTraceFullView {
   turn_count: number
   created_at: number
   last_activity_at: number
+  data_source?: string
   turns: SessionTraceTurn[]
 }
 
