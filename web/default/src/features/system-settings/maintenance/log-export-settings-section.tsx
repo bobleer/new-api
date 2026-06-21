@@ -56,6 +56,7 @@ const logExportSchema = z.object({
   'log_export_setting.elasticsearch_index': z.string(),
   'log_export_setting.elasticsearch_username': z.string(),
   'log_export_setting.elasticsearch_secret': z.string(),
+  'log_export_setting.elasticsearch_api_key': z.string(),
   'log_export_setting.clickhouse_enabled': z.boolean(),
   'log_export_setting.clickhouse_url': z.string(),
   'log_export_setting.clickhouse_database': z.string(),
@@ -259,6 +260,23 @@ export function LogExportSettingsSection({
                 render={({ field }) => (
                   <div className='space-y-2'>
                     <FormLabel>{t('Elasticsearch secret')}</FormLabel>
+                    <FormControl>
+                      <Input {...field} type='password' autoComplete='off' />
+                    </FormControl>
+                  </div>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='log_export_setting.elasticsearch_api_key'
+                render={({ field }) => (
+                  <div className='space-y-2 md:col-span-2'>
+                    <FormLabel>{t('Elasticsearch API key')}</FormLabel>
+                    <FormDescription>
+                      {t(
+                        'Use an API key instead of username/password when connecting to Elasticsearch.'
+                      )}
+                    </FormDescription>
                     <FormControl>
                       <Input {...field} type='password' autoComplete='off' />
                     </FormControl>

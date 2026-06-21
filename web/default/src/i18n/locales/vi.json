@@ -883,6 +883,8 @@
     "Elasticsearch index": "Chỉ mục Elasticsearch",
     "Elasticsearch username": "Tên người dùng Elasticsearch",
     "Elasticsearch secret": "Secret Elasticsearch",
+    "Elasticsearch API key": "Khóa API Elasticsearch",
+    "Use an API key instead of username/password when connecting to Elasticsearch.": "Dùng khóa API thay cho tên người dùng/mật khẩu khi kết nối Elasticsearch.",
     "ClickHouse": "ClickHouse",
     "Enable ClickHouse export": "Bật xuất ClickHouse",
     "ClickHouse URL": "URL ClickHouse",

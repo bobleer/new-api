@@ -883,6 +883,8 @@
     "Elasticsearch index": "Elasticsearch 索引",
     "Elasticsearch username": "Elasticsearch 用户名",
     "Elasticsearch secret": "Elasticsearch 密钥",
+    "Elasticsearch API key": "Elasticsearch API 密钥",
+    "Use an API key instead of username/password when connecting to Elasticsearch.": "连接 Elasticsearch 时，可使用 API 密钥代替用户名/密码。",
     "ClickHouse": "ClickHouse",
     "Enable ClickHouse export": "启用 ClickHouse 导出",
     "ClickHouse URL": "ClickHouse 地址",

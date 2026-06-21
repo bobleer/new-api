@@ -63,6 +63,7 @@ const defaultOperationsSettings: OperationsSettings = {
   'log_export_setting.elasticsearch_index': 'new-api-logs',
   'log_export_setting.elasticsearch_username': '',
   'log_export_setting.elasticsearch_secret': '',
+  'log_export_setting.elasticsearch_api_key': '',
   'log_export_setting.clickhouse_enabled': false,
   'log_export_setting.clickhouse_url': '',
   'log_export_setting.clickhouse_database': 'default',

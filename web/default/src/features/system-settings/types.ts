@@ -316,6 +316,7 @@ export type OperationsSettings = {
   'log_export_setting.elasticsearch_index': string
   'log_export_setting.elasticsearch_username': string
   'log_export_setting.elasticsearch_secret': string
+  'log_export_setting.elasticsearch_api_key': string
   'log_export_setting.clickhouse_enabled': boolean
   'log_export_setting.clickhouse_url': string
   'log_export_setting.clickhouse_database': string

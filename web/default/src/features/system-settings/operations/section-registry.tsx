@@ -118,6 +118,8 @@ const OPERATIONS_SECTIONS = [
             settings['log_export_setting.elasticsearch_username'] ?? '',
           'log_export_setting.elasticsearch_secret':
             settings['log_export_setting.elasticsearch_secret'] ?? '',
+          'log_export_setting.elasticsearch_api_key':
+            settings['log_export_setting.elasticsearch_api_key'] ?? '',
           'log_export_setting.clickhouse_enabled':
             settings['log_export_setting.clickhouse_enabled'] ?? false,
           'log_export_setting.clickhouse_url':

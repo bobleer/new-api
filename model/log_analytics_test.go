@@ -91,6 +91,27 @@ func TestGetLogAnalyticsRejectsLongRange(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestNormalizeLogAnalyticsErrorKeyClustersSimilarMessages(t *testing.T) {
+	a := normalizeLogAnalyticsErrorKey("Rate limit exceeded for request 9f3a2b1c-4d5e-6f70-8192-abcdef012345")
+	b := normalizeLogAnalyticsErrorKey("rate limit exceeded for request 11111111-2222-3333-4444-555555555555")
+	assert.Equal(t, a, b)
+	assert.Contains(t, a, "rate limit exceeded")
+	assert.Contains(t, a, "{id}")
+}
+
+func TestBuildLogAnalyticsErrorClusters(t *testing.T) {
+	rows := []logAnalyticsErrorScanRow{
+		{Message: "upstream timeout after 120 seconds", ModelName: "gpt-4", ChannelID: 1, CreatedAt: 100},
+		{Message: "upstream timeout after 180 seconds", ModelName: "gpt-4", ChannelID: 1, CreatedAt: 200},
+		{Message: "invalid api key", ModelName: "claude-3", ChannelID: 2, CreatedAt: 300},
+	}
+	clusters := buildLogAnalyticsErrorClusters(rows)
+	require.Len(t, clusters, 2)
+	assert.Equal(t, int64(2), clusters[0].Count)
+	assert.Contains(t, clusters[0].Message, "upstream timeout")
+	assert.Equal(t, int64(1), clusters[1].Count)
+}
+
 func TestGetLogAnalyticsInsights(t *testing.T) {
 	now := common.GetTimestamp()
 	username := "analytics-user-insights-test"

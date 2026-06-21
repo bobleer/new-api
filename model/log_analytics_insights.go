@@ -63,14 +63,6 @@ type logAnalyticsBucketRow struct {
 	TokenCount   int64 `gorm:"column:token_count"`
 }
 
-type logAnalyticsErrorRow struct {
-	Message   string `gorm:"column:message"`
-	ModelName string `gorm:"column:model_name"`
-	ChannelID int    `gorm:"column:channel_id"`
-	Count     int64  `gorm:"column:count"`
-	LatestAt  int64  `gorm:"column:latest_at"`
-}
-
 type logAnalyticsFlowRow struct {
 	Group        string `gorm:"column:group_name"`
 	ModelName    string `gorm:"column:model_name"`
@@ -151,47 +143,31 @@ SUM(CASE WHEN logs.type = ? THEN COALESCE(logs.prompt_tokens, 0) + COALESCE(logs
 		return heatmap[i].Weekday < heatmap[j].Weekday
 	})
 
-	var errorRows []logAnalyticsErrorRow
+	var errorScanRows []logAnalyticsErrorScanRow
 	errorTx := filteredTx.Session(&gorm.Session{}).
 		Where("logs.type = ?", LogTypeError).
 		Select(`
 logs.content AS message,
 logs.model_name AS model_name,
 logs.channel_id AS channel_id,
-COUNT(*) AS count,
-MAX(logs.created_at) AS latest_at`).
-		Group("logs.content, logs.model_name, logs.channel_id").
-		Order("count DESC, latest_at DESC").
-		Limit(logAnalyticsMaxErrorClusters)
-	if err := errorTx.Scan(&errorRows).Error; err != nil {
+logs.created_at AS created_at`).
+		Order("logs.created_at DESC").
+		Limit(logAnalyticsMaxErrorScanRows)
+	if err := errorTx.Scan(&errorScanRows).Error; err != nil {
 		return nil, err
 	}
 
-	channelIDs := make([]int, 0, len(errorRows))
-	for _, row := range errorRows {
+	channelIDs := make([]int, 0, len(errorScanRows))
+	for _, row := range errorScanRows {
 		if row.ChannelID != 0 {
 			channelIDs = append(channelIDs, row.ChannelID)
 		}
 	}
 	channelNames := loadChannelNameMap(channelIDs)
 
-	errors := make([]LogAnalyticsErrorCluster, 0, len(errorRows))
-	for _, row := range errorRows {
-		message := strings.TrimSpace(row.Message)
-		if message == "" {
-			message = "-"
-		}
-		if len(message) > 240 {
-			message = message[:240] + "..."
-		}
-		errors = append(errors, LogAnalyticsErrorCluster{
-			Message:     message,
-			Count:       row.Count,
-			LatestAt:    row.LatestAt,
-			ModelName:   row.ModelName,
-			ChannelID:   row.ChannelID,
-			ChannelName: channelNames[row.ChannelID],
-		})
+	errors := buildLogAnalyticsErrorClusters(errorScanRows)
+	for i := range errors {
+		errors[i].ChannelName = channelNames[errors[i].ChannelID]
 	}
 
 	groupSelect := "COALESCE(NULLIF(logs." + logGroupCol + ", ''), '-') AS group_name, logs.model_name AS model_name, logs.channel_id AS channel_id, " + aggregateSelect

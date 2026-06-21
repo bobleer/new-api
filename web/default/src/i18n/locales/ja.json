@@ -883,6 +883,8 @@
     "Elasticsearch index": "Elasticsearch インデックス",
     "Elasticsearch username": "Elasticsearch ユーザー名",
     "Elasticsearch secret": "Elasticsearch シークレット",
+    "Elasticsearch API key": "Elasticsearch API キー",
+    "Use an API key instead of username/password when connecting to Elasticsearch.": "Elasticsearch への接続には、ユーザー名/パスワードの代わりに API キーを使用できます。",
     "ClickHouse": "ClickHouse",
     "Enable ClickHouse export": "ClickHouse エクスポートを有効化",
     "ClickHouse URL": "ClickHouse URL",

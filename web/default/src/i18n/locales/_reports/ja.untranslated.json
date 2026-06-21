@@ -1,0 +1,7 @@
+{
+  "Trace ID": "Trace ID",
+  "Elasticsearch": "Elasticsearch",
+  "Elasticsearch URL": "Elasticsearch URL",
+  "ClickHouse": "ClickHouse",
+  "ClickHouse URL": "ClickHouse URL"
+}

@@ -883,6 +883,8 @@
     "Elasticsearch index": "Индекс Elasticsearch",
     "Elasticsearch username": "Имя пользователя Elasticsearch",
     "Elasticsearch secret": "Секрет Elasticsearch",
+    "Elasticsearch API key": "API-ключ Elasticsearch",
+    "Use an API key instead of username/password when connecting to Elasticsearch.": "Используйте API-ключ вместо имени пользователя и пароля при подключении к Elasticsearch.",
     "ClickHouse": "ClickHouse",
     "Enable ClickHouse export": "Включить экспорт в ClickHouse",
     "ClickHouse URL": "URL ClickHouse",
