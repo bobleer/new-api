@@ -208,24 +208,28 @@ func AddToken(c *gin.Context) {
 		return
 	}
 	cleanToken := model.Token{
-		UserId:             c.GetInt("id"),
-		Name:               token.Name,
-		Key:                key,
-		CreatedTime:        common.GetTimestamp(),
-		AccessedTime:       common.GetTimestamp(),
-		ExpiredTime:        token.ExpiredTime,
-		RemainQuota:        token.RemainQuota,
-		UnlimitedQuota:     token.UnlimitedQuota,
-		ModelLimitsEnabled: token.ModelLimitsEnabled,
-		ModelLimits:        token.ModelLimits,
-		AllowIps:           token.AllowIps,
-		Group:              token.Group,
-		CrossGroupRetry:    token.CrossGroupRetry,
+		UserId:                 c.GetInt("id"),
+		Name:                   token.Name,
+		Key:                    key,
+		CreatedTime:            common.GetTimestamp(),
+		AccessedTime:           common.GetTimestamp(),
+		ExpiredTime:            token.ExpiredTime,
+		RemainQuota:            token.RemainQuota,
+		UnlimitedQuota:         token.UnlimitedQuota,
+		ModelLimitsEnabled:     token.ModelLimitsEnabled,
+		ModelLimits:            token.ModelLimits,
+		AllowIps:               token.AllowIps,
+		Group:                  token.Group,
+		CrossGroupRetry:        token.CrossGroupRetry,
+		VerificationCodeEnabled: token.VerificationCodeEnabled,
 	}
 	err = cleanToken.Insert()
 	if err != nil {
 		common.ApiError(c, err)
 		return
+	}
+	if vErr := model.SetTokenVerificationEnabled(cleanToken.Id, cleanToken.VerificationCodeEnabled); vErr != nil {
+		common.SysLog("failed to set token verification setting: " + vErr.Error())
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -299,11 +303,15 @@ func UpdateToken(c *gin.Context) {
 		cleanToken.AllowIps = token.AllowIps
 		cleanToken.Group = token.Group
 		cleanToken.CrossGroupRetry = token.CrossGroupRetry
+		cleanToken.VerificationCodeEnabled = token.VerificationCodeEnabled
 	}
 	err = cleanToken.Update()
 	if err != nil {
 		common.ApiError(c, err)
 		return
+	}
+	if vErr := model.SetTokenVerificationEnabled(cleanToken.Id, cleanToken.VerificationCodeEnabled); vErr != nil {
+		common.SysLog("failed to set token verification setting: " + vErr.Error())
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,

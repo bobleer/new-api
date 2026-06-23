@@ -374,6 +374,15 @@ func TokenAuth() func(c *gin.Context) {
 			logger.LogDebug(c, "Client IP %s passed the token IP restrictions check", clientIp)
 		}
 
+		// X-Verification-Code 校验：令牌粒度的请求头校验
+		if token.VerificationCodeEnabled {
+			verificationCode := c.GetHeader("X-Verification-Code")
+			if verificationCode != "from_bitfun" {
+				abortWithOpenAiMessage(c, http.StatusForbidden, "X-Verification-Code 校验失败", types.ErrorCodeAccessDenied)
+				return
+			}
+		}
+
 		userCache, err := model.GetUserCache(token.UserId)
 		if err != nil {
 			common.SysLog(fmt.Sprintf("TokenAuth GetUserCache error for user %d: %v", token.UserId, err))

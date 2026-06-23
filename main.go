@@ -290,6 +290,9 @@ func InitResources() error {
 	// Initialize options, should after model.InitDB()
 	model.InitOptionMap()
 
+	// 加载令牌粒度的 X-Verification-Code 校验设置（存储在 options 表中，不涉及数据库结构变更）
+	model.LoadTokenVerificationSettings()
+
 	// 清理旧的磁盘缓存文件
 	common.CleanupOldCacheFiles()
 

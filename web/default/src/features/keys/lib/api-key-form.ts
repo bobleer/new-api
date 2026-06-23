@@ -37,6 +37,7 @@ export function getApiKeyFormSchema(t: TFunction) {
       allow_ips: z.string().optional(),
       group: z.string().optional(),
       cross_group_retry: z.boolean().optional(),
+      verification_code_enabled: z.boolean().optional(),
       tokenCount: z.number().min(1).optional(),
     })
     .superRefine((data, ctx) => {
@@ -72,6 +73,7 @@ export const API_KEY_FORM_DEFAULT_VALUES: ApiKeyFormValues = {
   allow_ips: '',
   group: DEFAULT_GROUP,
   cross_group_retry: true,
+  verification_code_enabled: false,
   tokenCount: 1,
 }
 
@@ -109,6 +111,7 @@ export function transformFormDataToPayload(
     allow_ips: data.allow_ips || '',
     group: data.group || '',
     cross_group_retry: data.group === 'auto' ? !!data.cross_group_retry : false,
+    verification_code_enabled: !!data.verification_code_enabled,
   }
 }
 
@@ -134,6 +137,7 @@ export function transformApiKeyToFormDefaults(
     allow_ips: apiKey.allow_ips || '',
     group: apiKey.group || DEFAULT_GROUP,
     cross_group_retry: !!apiKey.cross_group_retry,
+    verification_code_enabled: !!apiKey.verification_code_enabled,
     tokenCount: 1,
   }
 }

@@ -28,6 +28,10 @@ type Token struct {
 	UsedQuota          int            `json:"used_quota" gorm:"default:0"` // used quota
 	Group              string         `json:"group" gorm:"default:''"`
 	CrossGroupRetry    bool           `json:"cross_group_retry"` // 跨分组重试，仅auto分组有效
+	// VerificationCodeEnabled 控制是否校验请求头 X-Verification-Code == "from_bitfun"。
+	// 该字段不写入数据库（gorm:"-"），而是持久化在 options 表的 TokenVerificationCodeMap 中，
+	// 因此不会影响数据库字段和结构。
+	VerificationCodeEnabled bool `json:"verification_code_enabled" gorm:"-"`
 	DeletedAt          gorm.DeletedAt `gorm:"index"`
 }
 
@@ -82,6 +86,9 @@ func GetAllUserTokens(userId int, startIdx int, num int) ([]*Token, error) {
 	var tokens []*Token
 	var err error
 	err = DB.Where("user_id = ?", userId).Order("id desc").Limit(num).Offset(startIdx).Find(&tokens).Error
+	if err == nil {
+		PopulateTokenVerificationFields(tokens...)
+	}
 	return tokens, err
 }
 
@@ -178,9 +185,8 @@ func SearchUserTokens(userId int, keyword string, token string, offset int, limi
 
 	// 再分页查数据
 	err = baseQuery.Order("id desc").Offset(offset).Limit(limit).Find(&tokens).Error
-	if err != nil {
-		common.SysError("failed to search tokens: " + err.Error())
-		return nil, 0, errors.New("搜索令牌失败")
+	if err == nil {
+		PopulateTokenVerificationFields(tokens...)
 	}
 	return tokens, total, nil
 }
@@ -232,6 +238,9 @@ func GetTokenByIds(id int, userId int) (*Token, error) {
 	token := Token{Id: id, UserId: userId}
 	var err error = nil
 	err = DB.First(&token, "id = ? and user_id = ?", id, userId).Error
+	if err == nil {
+		token.VerificationCodeEnabled = IsTokenVerificationEnabled(token.Id)
+	}
 	return &token, err
 }
 
@@ -242,6 +251,9 @@ func GetTokenById(id int) (*Token, error) {
 	token := Token{Id: id}
 	var err error = nil
 	err = DB.First(&token, "id = ?", id).Error
+	if err == nil {
+		token.VerificationCodeEnabled = IsTokenVerificationEnabled(token.Id)
+	}
 	if shouldUpdateRedis(true, err) {
 		gopool.Go(func() {
 			if err := cacheSetToken(token); err != nil {
@@ -273,6 +285,9 @@ func GetTokenByKey(key string, fromDB bool) (token *Token, err error) {
 	}
 	fromDB = true
 	err = DB.Where(commonKeyCol+" = ?", key).First(&token).Error
+	if err == nil && token != nil {
+		token.VerificationCodeEnabled = IsTokenVerificationEnabled(token.Id)
+	}
 	return token, err
 }
 
@@ -369,6 +384,9 @@ func DeleteTokenById(id int, userId int) (err error) {
 	if err != nil {
 		return err
 	}
+	if delErr := DeleteTokenVerificationSetting(id); delErr != nil {
+		common.SysLog("failed to delete token verification setting: " + delErr.Error())
+	}
 	return token.Delete()
 }
 
@@ -460,6 +478,12 @@ func BatchDeleteTokens(ids []int, userId int) (int, error) {
 
 	if err := tx.Commit().Error; err != nil {
 		return 0, err
+	}
+
+	for _, t := range tokens {
+		if delErr := DeleteTokenVerificationSetting(t.Id); delErr != nil {
+			common.SysLog("failed to delete token verification setting: " + delErr.Error())
+		}
 	}
 
 	if common.RedisEnabled {

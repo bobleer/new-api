@@ -572,6 +572,33 @@ export function ApiKeysMutateDrawer({
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name='verification_code_enabled'
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className='flex flex-row items-center justify-between gap-4 rounded-lg border p-3'>
+                            <div className='space-y-0.5'>
+                              <FormLabel>
+                                {t('Verify X-Verification-Code')}
+                              </FormLabel>
+                              <FormDescription>
+                                {t(
+                                  'Require requests to carry the X-Verification-Code header set to "from_bitfun"'
+                                )}
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={!!field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </CollapsibleContent>
               </SideDrawerSection>

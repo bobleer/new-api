@@ -81,6 +81,7 @@ const EditTokenModal = (props) => {
     allow_ips: '',
     group: '',
     cross_group_retry: false,
+    verification_code_enabled: false,
     tokenCount: 1,
   });
 
@@ -638,6 +639,16 @@ const EditTokenModal = (props) => {
                       )}
                       showClear
                       style={{ width: '100%' }}
+                    />
+                  </Col>
+                  <Col span={24}>
+                    <Form.Switch
+                      field='verification_code_enabled'
+                      label={t('校验 X-Verification-Code')}
+                      size='default'
+                      extraText={t(
+                        '开启后，使用该令牌的请求必须携带 X-Verification-Code 头且值为 from_bitfun',
+                      )}
                     />
                   </Col>
                 </Row>
