@@ -1336,6 +1336,8 @@
     "Displayed in": "显示单位",
     "Displays the mobile sidebar.": "显示移动侧边栏。",
     "Do not over-trust this feature. IP may be spoofed. Please use with nginx, CDN and other gateways.": "请勿过度信任此功能，IP 可能被伪造，请配合 nginx 和 cdn 等网关使用",
+    "Require requests to carry the X-Verification-Code header set to \"from_bitfun\"": "要求请求携带 X-Verification-Code 头且值为 from_bitfun",
+    "Verify X-Verification-Code": "校验 X-Verification-Code",
     "Do not repeat check-in; only once per day": "请勿重复签到；每天仅一次",
     "Do regex replacement in the target field": "在目标字段里做正则替换",
     "Do string replacement in the target field": "在目标字段里做字符串替换",

@@ -1336,6 +1336,8 @@
     "Displayed in": "Displayed in",
     "Displays the mobile sidebar.": "Displays the mobile sidebar.",
     "Do not over-trust this feature. IP may be spoofed. Please use with nginx, CDN and other gateways.": "Do not over-trust this feature. IP may be spoofed. Please use with nginx, CDN and other gateways.",
+    "Require requests to carry the X-Verification-Code header set to \"from_bitfun\"": "Require requests to carry the X-Verification-Code header set to \"from_bitfun\"",
+    "Verify X-Verification-Code": "Verify X-Verification-Code",
     "Do not repeat check-in; only once per day": "Do not repeat check-in; only once per day",
     "Do regex replacement in the target field": "Do regex replacement in the target field",
     "Do string replacement in the target field": "Do string replacement in the target field",
